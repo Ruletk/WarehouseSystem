@@ -1,0 +1,64 @@
+version: '3.8'
+
+
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db
+      TZ: Asia/Aqtobe
+    ports:
+      - "5432:5432"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+  
+  internal-nginx:
+    image: nginx:1.27.3
+    restart: always
+    environment:
+      TZ: Asia/Aqtobe
+    ports:
+      - "8080:8080"
+    networks:
+      - internal
+    depends_on:
+      - db
+    volumes:
+      - ./nginx/nginx-internal.conf:/etc/nginx/conf.d/default.conf
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 1s
+
+  frontend:
+    build: ./services/frontend
+    restart: always
+    environment:
+      TZ: Asia/Aqtobe
+    ports:
+      - "80:80"
+    networks:
+      - internal
+    depends_on:
+      - internal-nginx
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 1s
+
+
+networks:
+  internal:
+    driver: bridge
