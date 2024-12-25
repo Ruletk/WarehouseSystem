@@ -1,0 +1,1012 @@
+openapi: '3.0.3'
+
+
+info:
+  title: Warehouse Management System - OpenAPI 3.0
+  version: 0.0.1
+  description: WIP
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+
+servers:
+  - url: http://localhost/api/v1
+
+
+tags:
+  - name: auth
+    description: Authentication
+  - name: warehouse
+    description: Warehouses
+  - name: stock
+    description: Stock management
+  - name: notifications
+    description: Notifications
+  - name: admin
+    description: Admin panel
+
+  
+paths:
+  # Authentication
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: User login
+      description: WIP
+      operationId: authLogin
+      requestBody:
+        description: Login user.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                invalidEmail:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid request"
+        "401":
+          description: Bad login
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                wrongEmailOrPassword:
+                  value:
+                    code: 401
+                    type: error
+                    message: "Wrong email or password"
+
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: User Registration
+      description: WIP
+      operationId: authRegistration
+      requestBody:
+        description: User register.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        "200":
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                invalidEmail:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid request"
+        "409":
+          description: User already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                alreadyRegistered:
+                  value:
+                    code: 409
+                    type: error
+                    message: "User with this email already registered"
+
+  /auth/logout:
+    get:
+      tags:
+        - auth
+      summary: User logout
+      description: WIP
+      operationId: authLogout
+      responses:
+        "200":
+          description: Successful logout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Successfully logged out"
+
+  # Warehouses
+  /warehouse/list:
+    get:
+      tags:
+        - warehouse
+      summary: Get all warehouses
+      description: WIP
+      operationId: listWarehouses
+      security:
+        - cookieAuth: [ ]
+      responses:
+        "200":
+          description: List of warehouses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehousesResponse'
+    post:
+      tags:
+        - warehouse
+      summary: Create new warehouse
+      description: WIP
+      operationId: createWarehouse
+      security:
+        - cookieAuth: [ ]
+      requestBody:
+        description: Create warehouse
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseCreationRequest'
+      responses:
+        "201":
+          description: Created warehouse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantCreate:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to create warehouse"       
+
+  /warehouse/{token}:
+    get:
+      tags:
+        - warehouse
+      summary: Get warehouse information
+      description: Get information about warehouse
+      operationId: getWarehouse
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Warehouse information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notOwner:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to get warehouse information"
+        "404":
+          description: Warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Warehouse not found"
+    put:
+      tags:
+        - warehouse
+      summary: Update warehouse information
+      description: Update warehouse information
+      operationId: updateWarehouse
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update warehouse
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseCreationRequest'
+      responses:
+        "200":
+          description: Updated warehouse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WarehouseResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantUpdate:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to update warehouse information"
+        "404":
+          description: Warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Warehouse not found"
+    delete:
+      tags:
+        - warehouse
+      summary: Delete warehouse
+      description: Delete warehouse
+      operationId: deleteWarehouse
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: token
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Warehouse deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Warehouse deleted"
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantDelete:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to delete warehouse"
+        "404":
+          description: Warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Warehouse not found"
+
+
+  # Stock
+  /stock/warehouse/{warehouse_id}:
+    get:
+      tags:
+        - stock
+      summary: Get all stock
+      description: WIP
+      operationId: listStock
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: warehouse_id
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: "Page number"
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: limit
+          in: query
+          description: "Items per page"
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 10
+        - name: sort
+          in: query
+          description: "Sort by"
+          required: false
+          schema:
+            type: string
+            example: "name"
+        - name: search
+          in: query
+          description: "Search by name"
+          required: false
+          schema:
+            type: string
+            example: "Apple"
+      responses:
+        "200":
+          description: List of stock
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StockResponse'
+        "403":
+          description: Don't have access to stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantList:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to list stock"
+        "404":
+          description: Warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Warehouse not found"
+    post:
+      tags:
+        - stock
+      summary: Add new stock
+      description: WIP
+      operationId: addStock
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: warehouse_id
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Add stock
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+      responses:
+        "201":
+          description: Created stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantAdd:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to add stock"
+        "404":
+          description: Warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Warehouse not found"
+
+  /stock/warehouse/{warehouse_id}/stock/{stock_id}:
+    get:
+      tags:
+        - stock
+      summary: Get stock information
+      description: Get information about stock
+      operationId: getStock
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: warehouse_id
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: stock_id
+          in: path
+          description: "Stock ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Stock information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notOwner:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to get stock information"
+        "404":
+          description: Stock not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Stock not found"
+    put:
+      tags:
+        - stock
+      summary: Update stock information
+      description: Update stock information
+      operationId: updateStock
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: warehouse_id
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: stock_id
+          in: path
+          description: "Stock ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update stock
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockRequest'
+      responses:
+        "200":
+          description: Updated stock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - stock
+      summary: Delete stock
+      description: Delete stock
+      operationId: deleteStock
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: warehouse_id
+          in: path
+          description: "Warehouse ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: stock_id
+          in: path
+          description: "Stock ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Stock deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Stock deleted"
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantDelete:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to delete stock"
+        "404":
+          description: Stock not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Stock not found"
+
+  # Notifications
+  /notifications/history:
+    get:
+      tags:
+        - notifications
+      summary: Get notifications history
+      description: WIP
+      operationId: getNotifications
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: page
+          in: query
+          description: "Page number"
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: limit
+          in: query
+          description: "Items per page"
+          required: false
+          schema:
+            type: integer
+            format: int32
+            example: 10
+        - name: sort
+          in: query
+          description: "Sort by"
+          required: false
+          schema:
+            type: string
+            example: "created_at"
+        - name: search
+          in: query
+          description: "Search by name"
+          required: false
+          schema:
+            type: string
+            example: "Apple"
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        "403":
+          description: Don't have access to notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantList:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to list notifications"
+
+  # Admin
+  /admin/moderation/users/{id}/ban:
+    post:
+      tags:
+        - admin
+      summary: Ban user
+      description: WIP
+      operationId: banUser
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: "User ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: User banned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "User banned"
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantBan:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to ban user"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "User not found"
+
+  /admin/moderation/users/{id}/unban:
+    post:
+      tags:
+        - admin
+      summary: Unban user
+      description: WIP
+      operationId: unbanUser
+      security:
+        - cookieAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          description: "User ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: User unbanned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "User unbanned"
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                cantUnban:
+                  value:
+                    code: 403
+                    type: error
+                    message: "Unable to unban user"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "User not found"
+
+components:
+  schemas:
+    AuthRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@gmail.com
+        password:
+          type: string
+          format: password
+          example: this is super secret password
+    
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          format: token
+          example: eyJpdiI6Inhwd3VZTG1PeVR6cG5KVUpUcFBBb
+          description: Authentication session token
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: "##default"
+    
+    TimeInfo:
+      type: object
+      properties:
+        created_at:
+          type: integer
+          format: int64
+          example: 1735120168
+        updated_at:
+          type: integer
+          format: int64
+          example: 1735120168
+
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 51.090709
+        longitude:
+          type: number
+          format: double
+          example: 71.418143
+    
+    WarehouseResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 12
+        name:
+          type: string
+          example: Central
+        location:
+          $ref: '#/components/schemas/Location'
+        time_info:
+          $ref: '#/components/schemas/TimeInfo'
+        
+    WarehousesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/WarehouseResponse'
+
+    WarehouseCreationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Main
+        location:
+          $ref: '#/components/schemas/Location'
+
+    StockResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 12
+        name:
+          type: string
+          example: "Apple"
+        description:
+          type: string
+          example: "Fresh apples"
+        quantity:
+          type: integer
+          format: int32
+          example: 100
+        unit_price:
+          type: number
+          format: double
+          example: 1.99
+        unit_ammount:
+          type: number
+          example: 100
+        total_price:
+          type: number
+          format: double
+          example: 199.0
+        warehouse_id:
+          type: integer
+          format: int32
+          example: 12
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "Color"
+              value:
+                type: string
+                example: "Red"
+        time_info:
+          $ref: '#/components/schemas/TimeInfo'
+
+    StockRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Apple"
+        description:
+          type: string
+          example: "Fresh apples"
+        quantity:
+          type: integer
+          format: int32
+          example: 100
+        unit_price:
+          type: number
+          format: double
+          example: 1.99
+        unit_ammount:
+          type: number
+          example: 100
+        warehouse_id:
+          type: integer
+          format: int32
+          example: 12
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "Color"
+              value:
+                type: string
+                example: "Red"
+    
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 12
+        title:
+          type: string
+          example: "New stock"
+        description:
+          type: string
+          example: "New stock arrived"
+        time_info:
+          $ref: '#/components/schemas/TimeInfo'
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+
+
+security:
+  - cookieAuth: [ ]
