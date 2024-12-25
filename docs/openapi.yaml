@@ -3,7 +3,7 @@ openapi: '3.0.3'
 
 info:
   title: Warehouse Management System - OpenAPI 3.0
-  version: 0.0.1
+  version: 0.1.0
   description: WIP
   license:
     name: Apache 2.0
@@ -17,7 +17,7 @@ servers:
 tags:
   - name: auth
     description: Authentication
-  - name: warehouse
+  - name: warehouses
     description: Warehouses
   - name: stock
     description: Stock management
@@ -140,11 +140,110 @@ paths:
                     type: success
                     message: "Successfully logged out"
 
+  /auth/reset-password:
+    post:
+      tags:
+        - auth
+      summary: Reset password
+      description: WIP
+      operationId: resetPassword
+      requestBody:
+        description: Reset password.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "200":
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Password reset"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                invalidEmail:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid request"
+
+  /auth/change-password/{token}:
+    post:
+      tags:
+        - auth
+      summary: Change password
+      description: WIP
+      operationId: changePassword
+      parameters:
+        - name: token
+          in: path
+          description: "Reset token"
+          required: true
+          schema:
+            type: string
+            format: token
+      requestBody:
+        description: Change password.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Password changed"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                invalidEmail:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid request"
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        "403":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForbiddenResponse"
+  
+  
   # Warehouses
   /warehouse/list:
     get:
       tags:
-        - warehouse
+        - warehouses
       summary: Get all warehouses
       description: WIP
       operationId: listWarehouses
@@ -157,9 +256,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WarehousesResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        "403":
+          description: Don't have access to warehouses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
     post:
       tags:
-        - warehouse
+        - warehouses
       summary: Create new warehouse
       description: WIP
       operationId: createWarehouse
@@ -178,23 +289,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WarehouseResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantCreate:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to create warehouse"       
+                $ref: '#/components/schemas/ForbiddenResponse'
 
   /warehouse/{token}:
     get:
       tags:
-        - warehouse
+        - warehouses
       summary: Get warehouse information
       description: Get information about warehouse
       operationId: getWarehouse
@@ -215,18 +326,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WarehouseResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                notOwner:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to get warehouse information"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Warehouse not found
           content:
@@ -241,7 +352,7 @@ paths:
                     message: "Warehouse not found"
     put:
       tags:
-        - warehouse
+        - warehouses
       summary: Update warehouse information
       description: Update warehouse information
       operationId: updateWarehouse
@@ -268,18 +379,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WarehouseResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantUpdate:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to update warehouse information"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Warehouse not found
           content:
@@ -294,7 +405,7 @@ paths:
                     message: "Warehouse not found"
     delete:
       tags:
-        - warehouse
+        - warehouses
       summary: Delete warehouse
       description: Delete warehouse
       operationId: deleteWarehouse
@@ -321,18 +432,18 @@ paths:
                     code: 200
                     type: success
                     message: "Warehouse deleted"
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantDelete:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to delete warehouse"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Warehouse not found
           content:
@@ -404,18 +515,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StockResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: Don't have access to stock
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantList:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to list stock"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Warehouse not found
           content:
@@ -457,18 +568,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantAdd:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to add stock"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Warehouse not found
           content:
@@ -513,18 +624,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                notOwner:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to get stock information"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Stock not found
           content:
@@ -573,12 +684,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockResponse'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: '#/components/schemas/ForbiddenResponse'
     delete:
       tags:
         - stock
@@ -615,18 +732,18 @@ paths:
                     code: 200
                     type: success
                     message: "Stock deleted"
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantDelete:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to delete stock"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: Stock not found
           content:
@@ -690,18 +807,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Notification'
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: Don't have access to notifications
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantList:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to list notifications"
+                $ref: '#/components/schemas/ForbiddenResponse'
 
   # Admin
   /admin/moderation/users/{id}/ban:
@@ -734,18 +851,18 @@ paths:
                     code: 200
                     type: success
                     message: "User banned"
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantBan:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to ban user"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: User not found
           content:
@@ -789,18 +906,18 @@ paths:
                     code: 200
                     type: success
                     message: "User unbanned"
+        "401":
+          description: WIP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
         "403":
           description: WIP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-              examples:
-                cantUnban:
-                  value:
-                    code: 403
-                    type: error
-                    message: "Unable to unban user"
+                $ref: '#/components/schemas/ForbiddenResponse'
         "404":
           description: User not found
           content:
@@ -1000,6 +1117,58 @@ components:
           example: "New stock arrived"
         time_info:
           $ref: '#/components/schemas/TimeInfo'
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example:
+    
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          format: password
+          example:
+        new_password:
+          type: string
+          format: password
+          example:
+
+    UnauthorizedResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 401
+        type:
+          type: string
+          example: error
+        message:
+          type: string
+          example: "Unauthorized"
+      xml:
+        name: "##default"
+
+    ForbiddenResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 403
+        type:
+          type: string
+          example: error
+        message:
+          type: string
+          example: "Forbidden"
+      xml:
+        name: "##default"
 
   securitySchemes:
     cookieAuth:
