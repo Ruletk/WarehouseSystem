@@ -1,0 +1,27 @@
+{
+  "name": "stock",
+  "version": "0.0.1",
+  "description": "A simple Node.js application that serves as an stock service.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "homepage": "https://github.com/Ruletk/WarehouseSystem",
+  "author": {
+    "name": "Damir Timergazin"
+  },
+  "contributors": [
+    {
+      "name": "Adil Ormanov"
+    },
+    {
+      "name": "Berdiyar Akhbergen"
+    },
+    {
+      "name": "Yerassyl Salimgerey"
+    }
+  ]
+}
