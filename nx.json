@@ -35,7 +35,15 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": []
+      "exclude": ["apps/warehouse-e2e/**/*"]
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
+      }
     }
   ]
 }
