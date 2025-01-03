@@ -81,23 +81,40 @@ ___
 
     Each microservice has its own dedicated branch named after the service.
 
-    Naming convention: `service-*service-name*`
+    Naming convention: `microservice/<service-name>`
 
     Example:
-    - `service-auth`
-    - `service-warehouse`
-    - `service-order`
-    - `service-notification`
+    - `microservice/auth`
+    - `microservice/warehouse`
+    - `microservice/order`
+    - `microservice/notification`
 
 2. **Feature branches**
 
     New features or changes to a specific microservice are developed in separate branches based on the microservice branch.
 
-    Naming convention: `service-*service-name*-change-description`
+    Naming convention: `<type>/<service-name>/<change-description>`
+
+    There are types of branches:
+    - `feature`: For new features.
+    - `bugfix`: For bug fixes.
+    - `refactor`: For code refactoring.
+    - `documentation`: For documentation changes.
+    - `library`: For adding or modifying shared libraries.
+    - `other`: For other changes that do not fit into any of the above categories.
+
+
     Example:
-    - `service-auth-login-endpoint`
-    - `service-warehouse-fix-inventory-bug`
-    - `service-order-improve-request-bottleneck`
+    - `feature/auth/add-login-endpoint`
+    - `feature/warehouse/fix-inventory-bug`
+    - `refactor/order/improve-request-bottleneck`
+
+    Branches that not related to a specific microservice should ignore the `<service-name>` part.
+
+    Example:
+    - `feature/add-logging`
+    - `bugfix/fix-logging-bug`
+
 
 3. **Merging to the main branch**
     
@@ -134,17 +151,17 @@ ___
         Critical bug fixes should be marked with `BREAKING CHANGE` in the commit message at the end.
 
         Example: `fix: resolve inventory bug`
-    
+
     3. **docs**: For documentation changes.
 
         It includes changes to the README, comments, and documentation files.
 
         Example: `docs: update README.md`
-    
+
     4. **style**: For code style changes.
 
         It includes formatting, missing semicolons, running linter, change linting rules, etc.
-      
+
         Example: `style: format code`
 
     5. **refactor**: For code refactoring.
@@ -154,7 +171,7 @@ ___
         Example: `refactor: improve inventory service`
 
     6. **test**: For adding or modifying tests.
-    
+
         It includes changes to the test files, adding new tests, and modifying existing tests.
 
         If it is a commit that fixes the test, it should be marked as `test+fix`, combined with `fix`.
