@@ -1,6 +1,6 @@
 # Warehouse Management System
 
-Readme version 0.0.1
+Readme version 1.0.0
 
 ## Table of contents
 
@@ -14,9 +14,32 @@ Readme version 0.0.1
 
 
 ## Description
-This is sample description. 
+Our warehouse and inventory management system is designed to manage a company's warehouse operations, including accounting for users, warehouses and goods.
 
-TODO: Add description.
+___
+
+### Main functionality
+
+1. **Users**
+    - Manage user accounts with different access levels.
+    - Ability to add, edit and delete users.
+
+2. **Warehouses**
+    - Add and record company warehouses.
+    - Manage data for each warehouse (name, location, description, etc.).
+
+3. **Products (Stock)**
+    - Add products to the warehouse.
+    - Record the quantity, categories and other characteristics of products.
+    - Manage the movement of products between warehouses
+
+___
+
+### Technical details
+
+The service is designed to be deployed on the company's server. The architecture is built on a microservice model for easy scalability and support for individual parts of the system.
+
+This project lays the foundation for more complex warehouse management systems, starting with basic functions and developing them according to requirements.
 
 ## Before you start
 
