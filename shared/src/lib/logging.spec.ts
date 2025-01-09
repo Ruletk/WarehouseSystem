@@ -1,7 +1,48 @@
-import { logging } from './logging';
+import { createLogger, LoggerOptions } from './logging';
+import { Logger, transports } from 'winston';
 
 describe('logging', () => {
-  it('should work', () => {
-    expect(logging()).toEqual('logging');
+  describe('createLogger', () => {
+    it('should create a logger with the correct level', () => {
+      const options: LoggerOptions = {
+        level: 'info',
+        label: 'test-label',
+      };
+
+      const logger: Logger = createLogger(options);
+      expect(logger.level).toBe('info');
+    });
+
+    it('should create a logger with the correct transports', () => {
+      const options: LoggerOptions = {
+        level: 'info',
+        label: 'test-label',
+      };
+
+      const logger: Logger = createLogger(options);
+      expect(logger.transports.length).toBe(3);
+      expect(logger.transports[0]).toBeInstanceOf(transports.Console);
+      expect(logger.transports[1]).toBeInstanceOf(transports.File);
+      expect(logger.transports[2]).toBeInstanceOf(transports.File);
+    });
+
+    it('should create a logger with the correct fields', () => {
+      const options: LoggerOptions = {
+        level: 'info',
+        label: 'test-label',
+      };
+
+      const logger: Logger = createLogger(options);
+      const consoleSpy = jest.spyOn(transports.Console.prototype, 'log');
+      logger.info('test-message');
+      const loggedObject = consoleSpy.mock.calls[0][0];
+
+      expect(loggedObject).toMatchObject({
+        message: 'test-message',
+        label: 'test-label',
+      });
+
+      consoleSpy.mockRestore();
+    });
   });
 });
