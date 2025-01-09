@@ -1,4 +1,4 @@
-import { createLogger, LoggerOptions } from './logging';
+import { getLogger, LoggerOptions, applyOptions } from './logging';
 import { Logger, transports } from 'winston';
 
 describe('logging', () => {
@@ -8,8 +8,8 @@ describe('logging', () => {
         level: 'info',
         label: 'test-label',
       };
-
-      const logger: Logger = createLogger(options);
+      applyOptions(options);
+      const logger: Logger = getLogger();
       expect(logger.level).toBe('info');
     });
 
@@ -18,8 +18,8 @@ describe('logging', () => {
         level: 'info',
         label: 'test-label',
       };
-
-      const logger: Logger = createLogger(options);
+      applyOptions(options);
+      const logger: Logger = getLogger();
       expect(logger.transports.length).toBe(3);
       expect(logger.transports[0]).toBeInstanceOf(transports.Console);
       expect(logger.transports[1]).toBeInstanceOf(transports.File);
@@ -31,8 +31,8 @@ describe('logging', () => {
         level: 'info',
         label: 'test-label',
       };
-
-      const logger: Logger = createLogger(options);
+      applyOptions(options);
+      const logger: Logger = getLogger();
       const consoleSpy = jest.spyOn(transports.Console.prototype, 'log');
       logger.info('test-message');
       const loggedObject = consoleSpy.mock.calls[0][0];

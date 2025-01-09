@@ -2,33 +2,22 @@ import {createLogger as builtinCreateLogger, format, transports, Logger} from 'w
 
 class LoggerOptions {
   constructor(
-    public level: string,
-    public label: string,
+    public level = 'info',
+    public label = 'default',
   ) {}
+}
+
+const defaultOptions: LoggerOptions = new LoggerOptions();
+let logger: Logger = createLogger(defaultOptions);
+
+
+function applyOptions(options: LoggerOptions): void {
+  logger = createLogger(options);
 }
 
 
 
 function createLogger(options: LoggerOptions): Logger {
-  const loggerTransports = [
-    new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.printf(({ level, message, label, timestamp, stack }) => {
-          return `${timestamp} [${label}] ${level}: ${message} ${stack || ''}`;
-        })
-      ),
-    }),
-    new transports.File({
-      filename: './logs/log.log',
-    }),
-    new transports.File({
-      filename: './logs/errors.log',
-      level: 'error',
-    }),
-  ];
-
-
   return builtinCreateLogger({
     level: options.level,
     format: format.combine(
@@ -38,8 +27,32 @@ function createLogger(options: LoggerOptions): Logger {
       format.label({ label: options.label }),
       format.json()
     ),
-    transports: loggerTransports,
+    transports: [
+      new transports.Console({
+        format: format.combine(
+          format.colorize(),
+          format.printf(({ level, message, label, timestamp, stack }) => {
+            return `${timestamp} [${label}] ${level}: ${message} ${
+              stack || ''
+            }`;
+          })
+        ),
+      }),
+      new transports.File({
+        filename: './logs/log.log',
+      }),
+      new transports.File({
+        filename: './logs/errors.log',
+        level: 'error',
+      }),
+    ],
   });
 }
 
-export {createLogger, LoggerOptions};
+
+const getLogger = (label = 'default'): Logger => {
+  return logger.child({ label });
+}
+
+
+export {LoggerOptions, getLogger, applyOptions};
