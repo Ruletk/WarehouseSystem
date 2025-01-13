@@ -18,7 +18,7 @@ services:
     # depends_on:
     #   - db, microservices because nginx will return error if it can't connect to them
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "systemctl", "status", "nginx"]
       interval: 1s
       timeout: 1s
       retries: 100
@@ -43,7 +43,7 @@ services:
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD", "systemctl", "status", "nginx"]
       interval: 1s
       timeout: 1s
       retries: 100
