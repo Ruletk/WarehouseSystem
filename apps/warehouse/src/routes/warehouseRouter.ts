@@ -1,4 +1,5 @@
 import { Router } from "express";
+import {WarehouseCreation} from "../dto/request";
 
 
 const router = Router();
@@ -10,6 +11,7 @@ router.get('/list', (req, res) => {
 });
 
 router.post('/list', (req, res) => {
+  const warehouse = WarehouseCreation.fromPlain(req.body);
   res.status(201).send({
     message: 'Warehouse added',
   });
@@ -25,6 +27,7 @@ router.get('/:token', (req, res) => {
 
 router.put('/:token', (req, res) => {
   const token = req.params.token;
+  const warehouse = WarehouseCreation.fromPlain(req.body);
   res.status(200).send({
     message: `Warehouse updated with token ${token}`,
   });
