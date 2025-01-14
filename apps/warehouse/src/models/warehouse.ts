@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm"
+import {WarehouseTag} from "./warehouseTag";
+import {WarehouseUser} from "./warehouseUser";
 
 @Entity({ name: 'warehouses' })
 export class Warehouse {
@@ -25,4 +27,10 @@ export class Warehouse {
 
   @Column({ name: 'deleted_at', nullable: true, default: null })
   deletedAt: Date
+
+  @OneToMany(() => WarehouseTag, tag => tag.warehouse)
+  tags: WarehouseTag[];
+
+  @OneToMany(() => WarehouseUser, user => user.warehouse)
+  users: WarehouseUser[];
 }

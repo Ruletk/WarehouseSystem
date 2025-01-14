@@ -1,12 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm"
+import {Warehouse} from "./warehouse";
 
 @Entity({ name: 'warehouse_users' })
 export class WarehouseUser {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number
 
-  @Column({ name: 'warehouse_id' })
-  warehouseId: number
+  @ManyToOne(() => Warehouse, warehouse => warehouse.users)
+  @JoinColumn({ name: 'warehouse_id' })
+  warehouse: Warehouse
 
   @Column({ name: 'user_id' })
   userId: number

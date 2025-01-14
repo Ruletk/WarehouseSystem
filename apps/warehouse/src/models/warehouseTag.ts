@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm"
+import {Warehouse} from "./warehouse";
 
 @Entity({ name: 'warehouse_tags' })
 export class WarehouseTag {
@@ -8,8 +9,9 @@ export class WarehouseTag {
   @Column({ name: 'tag' })
   tag: string
 
-  @Column({ name: 'warehouse_id' })
-  warehouseId: number
+  @ManyToOne(() => Warehouse, warehouse => warehouse.tags)
+  @JoinColumn({ name: 'warehouse_id' })
+  warehouse: Warehouse;
 
   @Column({ name: 'created_at', default: 'CURRENT_TIMESTAMP' })
   createdAt: Date
