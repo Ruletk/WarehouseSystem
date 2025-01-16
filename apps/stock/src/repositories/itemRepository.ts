@@ -19,12 +19,10 @@ export class ItemRepository {
     description: string
   ): Promise<Item> {
     const auth = this.repository.create({ warehouse_id, quantity, unit_price, unit_ammount, name, description, created_at: new Date(), updated_at: new Date() });
-    auth.recalculateTotalCost();
     return await this.repository.save(auth);
   }
 
   async update(updateData: Partial<Item>): Promise<void> {
-    if (updateData.unit_price || updateData.unit_ammount) updateData.recalculateTotalCost();
     await this.repository.update(updateData.item_id, updateData);
   }
 
