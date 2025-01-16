@@ -1,6 +1,27 @@
 version: '3.7'
 
 services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db
+      TZ: Asia/Aqtobe
+    networks:
+      - internal
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "db", "-U", "postgres"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_interval: 1s
+
   stock:
     image: stock
     build:
@@ -11,6 +32,8 @@ services:
       - "3333:3333"
     networks:
       - internal
+    depends_on:
+      - db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
@@ -21,3 +44,6 @@ services:
 networks:
   internal:
     driver: bridge
+
+volumes:
+  db_data:

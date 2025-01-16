@@ -2,6 +2,9 @@ import express from 'express';
 import * as path from 'path';
 import { healthRouter } from './routes/healthRouter';
 import { StockRouter } from './routes/stockRouter';
+import { createDataSource } from './config/db';
+import { ItemRepository } from './repositories/itemRepository';
+import { ItemService } from './services/itemService';
 
 const app = express();
 
@@ -10,13 +13,16 @@ app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Initialize dependencies
+const db = createDataSource();
 
 // Initialize repositories
+const itemRepository = new ItemRepository(db);
 
 // Initialize services
+const itemService = new ItemService(itemRepository);
 
 // Initialize routers
-const stockRouter = new StockRouter(null);
+const stockRouter = new StockRouter(itemService);
 
 // Register paths
 const stockExpressRouter = express.Router();
