@@ -18,18 +18,30 @@ export class ItemRepository {
     name: string,
     description: string
   ): Promise<Item> {
-    const auth = this.repository.create({ warehouse_id, quantity, unit_price, unit_ammount, name, description, created_at: new Date(), updated_at: new Date() });
-    auth.recalculateTotalCost();
+    const auth = this.repository.create({
+      warehouse_id,
+      quantity,
+      unit_price,
+      unit_ammount,
+      name,
+      description,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
     return await this.repository.save(auth);
   }
 
   async update(updateData: Partial<Item>): Promise<void> {
-    if (updateData.unit_price || updateData.unit_ammount) updateData.recalculateTotalCost();
     await this.repository.update(updateData.item_id, updateData);
   }
 
   async softDelete(item_id: number): Promise<void> {
-    await this.repository.insert({ item_id, deleted_at: new Date() });
+    await this.repository
+      .createQueryBuilder()
+      .where('item_id = :item_id', { item_id })
+      .update()
+      .set({ deleted_at: new Date(), updated_at: new Date() })
+      .execute();
   }
 
   async hardDelete(item_id: number): Promise<void> {
@@ -40,9 +52,17 @@ export class ItemRepository {
     return await this.repository.findOneBy({ item_id });
   }
 
+  async findByIdAndWarehouse(
+    item_id: number,
+    warehouse_id: number
+  ): Promise<Item | null> {
+    return await this.repository.findOneBy({ item_id });
+  }
+
   async findByName(name: string): Promise<Item[]> {
-    return await this.repository.createQueryBuilder("item")
-      .where("item.name ILIKE :name", { name: `%${name}%` })
+    return await this.repository
+      .createQueryBuilder('item')
+      .where('item.name ILIKE :name', { name: `%${name}%` })
       .getMany();
   }
 
@@ -50,6 +70,10 @@ export class ItemRepository {
 
   async findAll(): Promise<Item[]> {
     return await this.repository.find();
+  }
+
+  async findByWarehouse(warehouse_id: number): Promise<Item[]> {
+    return await this.repository.find({ where: { warehouse_id } });
   }
 
   async count(): Promise<number> {

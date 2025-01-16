@@ -29,15 +29,6 @@ export class Item {
   })
   unit_ammount: number;
 
-  @Column({
-    name: 'total_cost',
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    default: 0,
-  })
-  total_cost: number;
-
   @Column({ name: 'name', unique: true, length: 255 })
   name: string;
 
@@ -60,8 +51,4 @@ export class Item {
 
   @Column({ name: 'extra_fields', type: 'json', nullable: true })
   extra_fields: Record<string, any>;
-
-  recalculateTotalCost() {
-    this.total_cost = this.unit_price * this.unit_ammount;
-  }
 }
