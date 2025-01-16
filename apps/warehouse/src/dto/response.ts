@@ -1,6 +1,6 @@
-import {TimeInfo, Location} from "./base";
+import {TimeInfo, Location, BaseDTO} from "./base";
 
-export class Warehouse {
+export class WarehouseResponse extends BaseDTO {
   id: number;
   name: string;
   address: string;
@@ -9,5 +9,5 @@ export class Warehouse {
 }
 
 export class WarehouseList {
-  data: Warehouse[];
+  data: WarehouseResponse[];
 }
