@@ -43,7 +43,7 @@ export class ItemService {
 
   async getItemById(warehouse_id: number, item_id: number): Promise<ItemResponse> {
     const item = await this.itemRepository.findByIdAndWarehouse(item_id, warehouse_id);
-    if (!item || item.warehouse_id !== warehouse_id) {
+    if (!item) {
       return null;
     }
     return ItemResponse.fromModel(item);

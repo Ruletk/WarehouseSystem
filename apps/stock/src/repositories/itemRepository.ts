@@ -36,7 +36,12 @@ export class ItemRepository {
   }
 
   async softDelete(item_id: number): Promise<void> {
-    await this.repository.insert({ item_id, deleted_at: new Date() });
+    await this.repository
+      .createQueryBuilder()
+      .where('item_id = :item_id', { item_id })
+      .update()
+      .set({ deleted_at: new Date(), updated_at: new Date() })
+      .execute();
   }
 
   async hardDelete(item_id: number): Promise<void> {
@@ -44,11 +49,14 @@ export class ItemRepository {
   }
 
   async findById(item_id: number): Promise<Item | null> {
-    return await this.repository.findOneBy({ item_id,  });
+    return await this.repository.findOneBy({ item_id });
   }
 
-  async findByIdAndWarehouse(item_id: number, warehouse_id: number): Promise<Item | null> {
-    return await this.repository.findOneBy({ item_id, warehouse_id });
+  async findByIdAndWarehouse(
+    item_id: number,
+    warehouse_id: number
+  ): Promise<Item | null> {
+    return await this.repository.findOneBy({ item_id });
   }
 
   async findByName(name: string): Promise<Item[]> {
