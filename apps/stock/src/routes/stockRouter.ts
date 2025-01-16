@@ -1,9 +1,10 @@
-import { Router } from "express";
+import { Router } from 'express';
 
 const router = Router();
 
 router.get('/warehouse/:warehouse_id', (req, res) => {
   const warehouse_id = req.params.warehouse_id;
+
   res.status(200).send({
     message: `All stocks for warehouse ${warehouse_id}`,
   });

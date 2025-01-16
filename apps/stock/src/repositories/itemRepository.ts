@@ -18,7 +18,16 @@ export class ItemRepository {
     name: string,
     description: string
   ): Promise<Item> {
-    const auth = this.repository.create({ warehouse_id, quantity, unit_price, unit_ammount, name, description, created_at: new Date(), updated_at: new Date() });
+    const auth = this.repository.create({
+      warehouse_id,
+      quantity,
+      unit_price,
+      unit_ammount,
+      name,
+      description,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
     return await this.repository.save(auth);
   }
 
@@ -39,8 +48,9 @@ export class ItemRepository {
   }
 
   async findByName(name: string): Promise<Item[]> {
-    return await this.repository.createQueryBuilder("item")
-      .where("item.name ILIKE :name", { name: `%${name}%` })
+    return await this.repository
+      .createQueryBuilder('item')
+      .where('item.name ILIKE :name', { name: `%${name}%` })
       .getMany();
   }
 
@@ -48,6 +58,10 @@ export class ItemRepository {
 
   async findAll(): Promise<Item[]> {
     return await this.repository.find();
+  }
+
+  async findByWarehouse(warehouse_id: number): Promise<Item[]> {
+    return await this.repository.find({ where: { warehouse_id } });
   }
 
   async count(): Promise<number> {
