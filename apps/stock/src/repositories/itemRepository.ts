@@ -44,7 +44,11 @@ export class ItemRepository {
   }
 
   async findById(item_id: number): Promise<Item | null> {
-    return await this.repository.findOneBy({ item_id });
+    return await this.repository.findOneBy({ item_id,  });
+  }
+
+  async findByIdAndWarehouse(item_id: number, warehouse_id: number): Promise<Item | null> {
+    return await this.repository.findOneBy({ item_id, warehouse_id });
   }
 
   async findByName(name: string): Promise<Item[]> {

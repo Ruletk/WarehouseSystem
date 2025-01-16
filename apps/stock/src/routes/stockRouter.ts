@@ -1,44 +1,53 @@
 import { Router } from 'express';
+import { ItemService } from '../services/itemService';
+import { ItemRequest } from '../dto/request';
 
-const router = Router();
+export class StockRouter {
+  private itemService: ItemService;
 
-router.get('/warehouse/:warehouse_id', (req, res) => {
-  const warehouse_id = req.params.warehouse_id;
+  constructor(stockService: ItemService) {
+    this.itemService = stockService;
+  }
 
-  res.status(200).send({
-    message: `All stocks for warehouse ${warehouse_id}`,
-  });
-});
+  registerRoutes(router: Router) {
+    router.get('/warehouse/:warehouse_id', this.getStocksByWarehouse);
+    router.post('/warehouse/:warehouse_id', this.createStock);
+    router.get('/warehouse/:warehouse_id/stock/:stock_id', this.getStockById);
+    router.put('/warehouse/:warehouse_id/stock/:stock_id', this.updateStock);
+    router.delete('/warehouse/:warehouse_id/stock/:stock_id', this.deleteStock);
+  }
 
-router.post('/warehouse/:warehouse_id', (req, res) => {
-  const warehouse_id = req.params.warehouse_id;
-  res.status(201).send({
-    message: `Stock added to warehouse ${warehouse_id}`,
-  });
-});
+  async getStocksByWarehouse(req, res) {
+    const warehouse_id = req.params.warehouse_id;
+    const items = await this.itemService.getItemsByWarehouse(warehouse_id);
+    res.status(200).send(items);
+  }
 
-router.get('/warehouse/:warehouse_id/stock/:stock_id', (req, res) => {
-  const warehouse_id = req.params.warehouse_id;
-  const stock_id = req.params.stock_id;
-  res.status(200).send({
-    message: `Stock details with id ${stock_id} for warehouse ${warehouse_id}`,
-  });
-});
+  async createStock(req, res) {
+    const itemRequest = new ItemRequest(req.body);
+    itemRequest.warehouse_id = req.params.warehouse_id;
 
-router.put('/warehouse/:warehouse_id/stock/:stock_id', (req, res) => {
-  const warehouse_id = req.params.warehouse_id;
-  const stock_id = req.params.stock_id;
-  res.status(200).send({
-    message: `Stock updated with id ${stock_id} for warehouse ${warehouse_id}`,
-  });
-});
+    const item = await this.itemService.createItem(itemRequest);
+    res.status(201).send(item);
+  }
 
-router.delete('/warehouse/:warehouse_id/stock/:stock_id', (req, res) => {
-  const warehouse_id = req.params.warehouse_id;
-  const stock_id = req.params.stock_id;
-  res.status(200).send({
-    message: `Stock deleted with id ${stock_id} for warehouse ${warehouse_id}`,
-  });
-});
+  async getStockById(req, res) {
+    const warehouse_id = req.params.warehouse_id;
+    const item_id = req.params.stock_id;
+    const item = await this.itemService.getItemById(warehouse_id, item_id);
+    res.status(200).send(item);
+  }
 
-export { router as stockRouter };
+  async updateStock(req, res) {
+    const item_id = req.params.stock_id;
+    const itemRequest = new ItemRequest(req.body);
+    const item = await this.itemService.updateItem(item_id, itemRequest);
+    res.status(200).send(item);
+  }
+
+  async deleteStock(req, res) {
+    const item_id = req.params.stock_id;
+    const resp = await this.itemService.deleteItem(item_id);
+    res.status(200).send(resp);
+  }
+}

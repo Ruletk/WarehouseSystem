@@ -2,7 +2,7 @@ import { ItemRequest } from '../dto/request';
 import { ApiResponse, ItemListResponse, ItemResponse } from '../dto/response';
 import { ItemRepository } from '../repositories/itemRepository';
 
-export class AuthService {
+export class ItemService {
   private itemRepository: ItemRepository;
 
   constructor(itemRepository: ItemRepository) {
@@ -40,5 +40,14 @@ export class AuthService {
     const items = await this.itemRepository.findByWarehouse(warehouse_id);
     return ItemListResponse.fromModel(items);
   }
+
+  async getItemById(warehouse_id: number, item_id: number): Promise<ItemResponse> {
+    const item = await this.itemRepository.findByIdAndWarehouse(item_id, warehouse_id);
+    if (!item || item.warehouse_id !== warehouse_id) {
+      return null;
+    }
+    return ItemResponse.fromModel(item);
+  }
+
 
 }
