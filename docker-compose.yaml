@@ -84,7 +84,7 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
       timeout: 1s
-      retries: 10
+      retries: 100
 
   stock:
     image: stock
@@ -98,6 +98,22 @@ services:
       - internal
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
+
+  warehouse:
+    image: warehouse
+    build:
+      context: .
+      dockerfile: ./apps/warehouse/Dockerfile
+    container_name: warehouse
+    ports:
+      - "3333:3333"
+    networks:
+      - internal
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
