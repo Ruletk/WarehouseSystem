@@ -45,7 +45,7 @@ export class AuthRepository {
    * @param id - The ID of the authentication record to find.
    * @returns A promise that resolves to the authentication record if found, or undefined if not found.
    */
-  async findById(id: string): Promise<Auth | undefined> {
+  async findById(id: number): Promise<Auth | undefined> {
     return this.authRepository.findOne({ where: { id } });
   }
 
