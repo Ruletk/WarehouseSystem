@@ -5,7 +5,7 @@ import {
   PasswordChange,
   RequestPasswordChange,
 } from '../dto/request';
-import { validateRequest } from '../middleware/validationMiddleware';
+import { validateRequest } from '@warehouse/validation';
 
 const authHandlers = new AuthHandlers('test dependency');
 
