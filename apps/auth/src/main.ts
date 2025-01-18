@@ -6,6 +6,10 @@ import { healthRouter } from './routes/healthRouter';
 import { connectDB } from './config/db';
 import { AuthRepository } from './repositories/authRepository';
 import { AuthAPI } from './routes/authRoute';
+import { AuthService } from './services/authService';
+import { TokenService } from './services/tokenService';
+import { JwtService } from './services/jwtService';
+import { RefreshTokenRepository } from './repositories/refreshTokenRepository';
 
 const app = express();
 
@@ -23,16 +27,16 @@ async function main() {
   const DB = await connectDB();
 
   //Initialize repositories
-
-  // TODO: Remove eslint line below
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const authRepository = new AuthRepository(DB);
+  const refreshTokenRepository = new RefreshTokenRepository(DB);
 
   // Initialize services
-
+  const jwtService = new JwtService();
+  const tokenService = new TokenService(refreshTokenRepository, jwtService);
+  const authService = new AuthService(authRepository, tokenService, jwtService);
 
   // Initialize APIs
-  const authAPI = new AuthAPI('authService');
+  const authAPI = new AuthAPI(authService);
 
 
   // Initialize routers

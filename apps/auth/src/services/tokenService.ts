@@ -12,6 +12,7 @@ export class TokenService {
     refreshTokenRepository: RefreshTokenRepository,
     jwtService: JwtService
   ) {
+    console.log('INFO: Creating TokenService instance');
     this.refreshTokenRepository = refreshTokenRepository;
     this.jwtService = jwtService;
   }
