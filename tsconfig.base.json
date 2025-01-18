@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@warehouse/logging": ["shared/logging/src/index.ts"]
+      "@warehouse/logging": ["shared/logging/src/index.ts"],
+      "@warehouse/validation": ["shared/validation/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
