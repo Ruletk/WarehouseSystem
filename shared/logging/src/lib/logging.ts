@@ -1,21 +1,20 @@
-import {createLogger as builtinCreateLogger, format, transports, Logger} from 'winston';
+import {
+  createLogger as builtinCreateLogger,
+  format,
+  transports,
+  Logger,
+} from 'winston';
 
 class LoggerOptions {
-  constructor(
-    public level = 'info',
-    public label = 'default',
-  ) {}
+  constructor(public level = 'info', public label = 'default') {}
 }
 
 const defaultOptions: LoggerOptions = new LoggerOptions();
 let logger: Logger = createLogger(defaultOptions);
 
-
 function applyOptions(options: LoggerOptions): void {
   logger = createLogger(options);
 }
-
-
 
 function createLogger(options: LoggerOptions): Logger {
   return builtinCreateLogger({
@@ -49,10 +48,8 @@ function createLogger(options: LoggerOptions): Logger {
   });
 }
 
-
 const getLogger = (label = 'default'): Logger => {
   return logger.child({ label });
-}
+};
 
-
-export {LoggerOptions, getLogger, applyOptions};
+export { LoggerOptions, getLogger, applyOptions };
