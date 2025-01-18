@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Auth } from './auth';
 
 @Entity({ name: 'refresh_tokens' })
-export class RefreshTokens {
+export class RefreshToken {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
@@ -17,9 +17,6 @@ export class RefreshTokens {
 
   @Column({ name: 'updated_at', type: 'timestamp' })
   updated_at: Date;
-
-  @Column({ name: 'deleted_at', type: 'timestamp' })
-  deleted_at: Date;
 
   @Column({ name: 'last_user_agent' })
   lastUserAgent: string;
