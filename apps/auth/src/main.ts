@@ -1,5 +1,6 @@
 import express from 'express';
 import * as path from 'path';
+import cors from 'cors';
 import { authRouter } from './routes/authRoute';
 import { healthRouter } from './routes/healthRouter';
 import { connectDB } from './config/db';
@@ -8,6 +9,11 @@ import { AuthRepository } from './repositories/authRepository';
 const app = express();
 
 // Initialize middlewares
+app.use(cors({
+  origin: ['*'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
