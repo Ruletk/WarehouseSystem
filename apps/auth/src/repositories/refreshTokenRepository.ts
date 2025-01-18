@@ -7,6 +7,7 @@ export class RefreshTokenRepository {
   private refreshTokenRepository: Repository<RefreshToken>;
 
   constructor(dataSource: DataSource) {
+    console.log('INFO: Creating RefreshTokenRepository instance');
     this.dataSource = dataSource;
     this.refreshTokenRepository = dataSource.getRepository(RefreshToken);
   }

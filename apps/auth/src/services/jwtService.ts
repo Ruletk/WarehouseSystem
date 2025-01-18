@@ -4,9 +4,10 @@ import { Auth } from '../models/auth';
 const ACCESS_EXPIRES_IN = '15m';
 
 export class JwtService {
-  private readonly secret: string;
+  private readonly secret: string = 'TOP-SECRET-TOKEN-KEY';
 
   constructor() {
+    console.log('INFO: Creating JwtService instance');
     this.secret = process.env.JWT_SECRET;
   }
 

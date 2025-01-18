@@ -5,12 +5,13 @@ import {
   RequestPasswordChange,
 } from '../dto/request';
 import { validateRequest } from '@warehouse/validation';
+import { AuthService } from '../services/authService';
 
 export class AuthAPI {
-  private authService: string; // Temporary string, will be replaced with actual service
+  private authService: AuthService;
 
-  constructor(authService: string) {
-    // Temporary string, will be replaced with actual service
+  constructor(authService: AuthService) {
+    console.log('INFO: Creating AuthAPI instance');
     this.authService = authService;
   }
   /**
@@ -45,7 +46,7 @@ export class AuthAPI {
       `INFO: Registering public only auth routes with router: ${router.name}.`
     );
 
-    router.post('/login', validateRequest(AuthRequest), this.loginHandler);
+    router.post('/login', validateRequest(AuthRequest), this.loginHandler.bind(this));
     router.post(
       '/register',
       validateRequest(AuthRequest),
@@ -69,9 +70,17 @@ export class AuthAPI {
     );
   }
 
-  private loginHandler(req: Request, res: Response) {
+  private async loginHandler(req: Request, res: Response) {
     console.log('Login handler called');
-    res.json({ message: 'Login handler called', data: req.body });
+    const resp = await this.authService.login(req.body, req);
+
+    if (resp.type === 'error') {
+      res.status(resp.code).json(resp);
+      return;
+    }
+
+    res.cookie('auth', resp.data.token, { maxAge: 31536000, httpOnly: true});
+    res.json(resp);
   }
 
   private registerHandler(req: Request, res: Response) {

@@ -7,6 +7,7 @@ export class AuthRepository {
   private authRepository: Repository<Auth>;
 
   constructor(dataSource: DataSource) {
+    console.log('INFO: Creating AuthRepository instance');
     this.dataSource = dataSource;
     this.authRepository = dataSource.getRepository(Auth);
   }
