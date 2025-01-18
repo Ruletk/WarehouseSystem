@@ -66,7 +66,7 @@ describe('validation', () => {
       expect(res.json).toHaveBeenCalledWith({
         code: 400,
         type: 'error',
-        message: 'Validation error. Validation error details',
+        message: 'Invalid request data',
       });
       expect(next).not.toHaveBeenCalled();
     });

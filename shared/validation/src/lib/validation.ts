@@ -1,10 +1,14 @@
-import { plainToInstance } from "class-transformer";
-import { validate, ValidationError } from "class-validator";
-import { Request, Response } from "express";
-import { ApiResponse } from "./baseDTO";
+import { plainToInstance } from 'class-transformer';
+import { validate, ValidationError } from 'class-validator';
+import { Request, Response } from 'express';
+import { ApiResponse } from './baseDTO';
 
 export function validateRequest<T extends object>(DTOClass: new () => T) {
-  return async (req: Request, res: Response, next: () => void): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: () => void
+  ): Promise<void> => {
     const dtoInstance = plainToInstance(DTOClass, req.body);
     const errors: ValidationError[] = await validate(dtoInstance);
 
