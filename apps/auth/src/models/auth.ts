@@ -6,11 +6,14 @@ export class Auth {
   @PrimaryGeneratedColumn({ name: "id" })
   id: string;
 
-  @Column({ name: "email" })
+  @Column({ name: "email", unique: true })
   email: string;
 
   @Column({ name: "password_hash" })
   password_hash: string;
+
+  @Column({ name: "is_active" })
+  is_active: boolean;
 
   @Column({ name: "created_at", type: "timestamp" })
   created_at: Date;
