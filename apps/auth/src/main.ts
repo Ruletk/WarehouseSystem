@@ -1,10 +1,11 @@
 import express from 'express';
 import * as path from 'path';
 import cors from 'cors';
-import { authRouter } from './routes/authRoute';
+
 import { healthRouter } from './routes/healthRouter';
 import { connectDB } from './config/db';
 import { AuthRepository } from './repositories/authRepository';
+import { AuthAPI } from './routes/authRoute';
 
 const app = express();
 
@@ -29,7 +30,17 @@ async function main() {
 
   // Initialize services
 
-  // Initialize routes
+
+  // Initialize APIs
+  const authAPI = new AuthAPI('authService');
+
+
+  // Initialize routers
+  const authRouter = express.Router();
+  authAPI.registerRoutes(authRouter);
+
+
+  // Register routers
   app.use('/', authRouter);
   app.use('/health', healthRouter);
 }
