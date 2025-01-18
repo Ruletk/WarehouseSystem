@@ -1,0 +1,19 @@
+{
+  "name": "logging",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/logging/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/shared/logging",
+        "main": "shared/logging/src/index.ts",
+        "tsConfig": "shared/logging/tsconfig.lib.json",
+        "assets": ["shared/logging/*.md"]
+      }
+    }
+  }
+}
