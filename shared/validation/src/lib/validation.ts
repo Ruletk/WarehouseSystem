@@ -15,7 +15,7 @@ export function validateRequest<T extends object>(DTOClass: new () => T) {
         ApiResponse.from({
           code: 400,
           type: 'error',
-          message: `Validation error. ${message.toString()}`,
+          message: `Invalid request data`,
         })
       );
       return;
