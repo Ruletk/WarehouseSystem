@@ -20,6 +20,6 @@ export class Auth {
   @Column({ name: 'updated_at', type: 'timestamp' })
   updated_at: Date;
 
-  @Column({ name: 'deleted_at', type: 'timestamp' })
+  @Column({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deleted_at: Date;
 }

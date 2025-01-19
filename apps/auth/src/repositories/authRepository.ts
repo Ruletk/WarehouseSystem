@@ -1,6 +1,5 @@
-import { DataSource, Repository } from "typeorm";
-import { Auth } from "../models/auth";
-
+import { DataSource, Repository } from 'typeorm';
+import { Auth } from '../models/auth';
 
 export class AuthRepository {
   private dataSource: DataSource;
@@ -12,7 +11,6 @@ export class AuthRepository {
     this.authRepository = dataSource.getRepository(Auth);
   }
 
-
   /**
    * Creates a new Auth entity with the given email and password hash.
    * Sets the created_at and updated_at timestamps to the current date and time.
@@ -23,10 +21,15 @@ export class AuthRepository {
    * @returns A promise that resolves to the created Auth entity.
    */
   async create(email: string, password_hash: string): Promise<Auth> {
-    const auth = this.authRepository.create({ email, password_hash });
     const now = new Date();
-    auth.created_at = now;
-    auth.updated_at = now;
+    const auth = this.authRepository.create({
+      email,
+      password_hash,
+      is_active: false,
+      created_at: now,
+      updated_at: now,
+    });
+
     return this.authRepository.save(auth);
   }
 
@@ -59,7 +62,10 @@ export class AuthRepository {
    */
   async updatePassword(id: string, password_hash: string): Promise<boolean> {
     // Don't need to get entity, just update the password_hash
-    const updateRes = await this.authRepository.update(id, { password_hash, updated_at: new Date() });
+    const updateRes = await this.authRepository.update(id, {
+      password_hash,
+      updated_at: new Date(),
+    });
     return updateRes.affected === 1;
   }
 
@@ -70,7 +76,10 @@ export class AuthRepository {
    * @returns A promise that resolves to a boolean indicating whether the account was successfully activated.
    */
   async activateAccount(id: string): Promise<boolean> {
-    const updateRes = await this.authRepository.update(id, { is_active: true, updated_at: new Date() });
+    const updateRes = await this.authRepository.update(id, {
+      is_active: true,
+      updated_at: new Date(),
+    });
     return updateRes.affected === 1;
   }
 
@@ -81,7 +90,10 @@ export class AuthRepository {
    * @returns A promise that resolves to a boolean indicating whether the account was successfully deactivated.
    */
   async deactivateAccount(id: string): Promise<boolean> {
-    const updateRes = await this.authRepository.update(id, { is_active: false, updated_at: new Date() });
+    const updateRes = await this.authRepository.update(id, {
+      is_active: false,
+      updated_at: new Date(),
+    });
     return updateRes.affected === 1;
   }
 
@@ -93,7 +105,9 @@ export class AuthRepository {
    */
   async deleteAccount(id: string): Promise<boolean> {
     // Keep updated_at for audit purposes, not updating it here
-    const updateRes = await this.authRepository.update(id, { deleted_at: new Date() });
+    const updateRes = await this.authRepository.update(id, {
+      deleted_at: new Date(),
+    });
     return updateRes.affected === 1;
   }
 
@@ -107,5 +121,4 @@ export class AuthRepository {
     const deleteRes = await this.authRepository.delete(id);
     return deleteRes.affected === 1;
   }
-
 }

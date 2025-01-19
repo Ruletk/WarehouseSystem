@@ -18,10 +18,10 @@ export class RefreshToken {
   @Column({ name: 'updated_at', type: 'timestamp' })
   updated_at: Date;
 
-  @Column({ name: 'last_user_agent' })
+  @Column({ name: 'last_user_agent', nullable: true })
   lastUserAgent: string;
 
-  @Column({ name: 'last_ip' })
+  @Column({ name: 'last_ip', nullable: true })
   lastIP: string;
 
   @ManyToOne(() => Auth)

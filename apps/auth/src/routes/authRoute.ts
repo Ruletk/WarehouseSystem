@@ -46,11 +46,15 @@ export class AuthAPI {
       `INFO: Registering public only auth routes with router: ${router.name}.`
     );
 
-    router.post('/login', validateRequest(AuthRequest), this.loginHandler.bind(this));
+    router.post(
+      '/login',
+      validateRequest(AuthRequest),
+      this.loginHandler.bind(this)
+    );
     router.post(
       '/register',
       validateRequest(AuthRequest),
-      this.registerHandler
+      this.registerHandler.bind(this)
     );
     router.post(
       '/forgot-password',
@@ -79,13 +83,23 @@ export class AuthAPI {
       return;
     }
 
-    res.cookie('auth', resp.data.token, { maxAge: 31536000, httpOnly: true});
+    res.cookie('auth', resp.data?.token, {
+      maxAge: 31536000000,
+      httpOnly: true,
+    });
     res.json(resp);
   }
 
-  private registerHandler(req: Request, res: Response) {
+  private async registerHandler(req: Request, res: Response) {
     console.log('Register handler called');
-    res.json({ message: 'Register handler called', data: req.body });
+    const resp = await this.authService.register(req.body);
+
+    if (resp.type === 'error') {
+      res.status(resp.code).json(resp);
+      return;
+    }
+
+    res.json(resp);
   }
 
   private logoutHandler(req: Request, res: Response) {
