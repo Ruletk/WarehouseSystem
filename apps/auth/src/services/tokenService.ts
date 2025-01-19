@@ -3,6 +3,7 @@ import { Auth } from '../models/auth';
 import { RefreshTokenRepository } from '../repositories/refreshTokenRepository';
 import { JwtService } from './jwtService';
 import { RefreshToken } from '../models/refreshToken';
+import { getRandomValues } from 'crypto';
 
 export class TokenService {
   private refreshTokenRepository: RefreshTokenRepository;
@@ -25,7 +26,7 @@ export class TokenService {
    * @returns {Promise<string>} A promise that resolves to the newly created refresh token.
    */
   async createRefreshToken(auth: Auth, req: Request): Promise<string> {
-    const refreshToken = 'token';
+    const refreshToken = await this.generateRefreshToken();
     await this.refreshTokenRepository.create(
       auth,
       new Date(),
@@ -76,5 +77,11 @@ export class TokenService {
 
     // TODO: Implement caching.
     return this.jwtService.generateAccessToken(token.auth);
+  }
+
+  private async generateRefreshToken(): Promise<string> {
+    const array = new Uint8Array(48);
+    getRandomValues(array);
+    return Buffer.from(array).toString('base64');
   }
 }
