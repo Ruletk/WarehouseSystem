@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { ItemService } from '../services/itemService';
-import { ItemRequest } from '../dto/request';
+import { CreateItemRequest, UpdateItemRequest } from '../dto/request';
+import { validationMiddleware } from '../middleware/validationMiddleware';
 
 export class StockRouter {
   private itemService: ItemService;
@@ -10,46 +11,84 @@ export class StockRouter {
   }
 
   registerRoutes(router: Router) {
+    // Получить все товары в складе
     router.get('/warehouse/:warehouse_id', this.getStocksByWarehouse);
-    router.post('/warehouse/:warehouse_id', this.createStock);
+
+    // Создать новый товар
+    router.post(
+      '/warehouse/:warehouse_id',
+      validationMiddleware(CreateItemRequest), // Middleware для валидации входных данных
+      this.createStock
+    );
+
+    // Получить товар по ID
     router.get('/warehouse/:warehouse_id/stock/:stock_id', this.getStockById);
-    router.put('/warehouse/:warehouse_id/stock/:stock_id', this.updateStock);
+
+    // Обновить существующий товар
+    router.put(
+      '/warehouse/:warehouse_id/stock/:stock_id',
+      validationMiddleware(UpdateItemRequest), // Middleware для валидации входных данных
+      this.updateStock
+    );
+
+    // Удалить товар по ID
     router.delete('/warehouse/:warehouse_id/stock/:stock_id', this.deleteStock);
   }
 
-  getStocksByWarehouse = async (req, res) => {
-    const warehouse_id = req.params.warehouse_id;
-    const items = await this.itemService.getItemsByWarehouse(warehouse_id);
-    res.status(200).send(items);
+  getStocksByWarehouse = async (req: Request, res: Response) => {
+    try {
+      const warehouse_id = req.params.warehouse_id;
+      const items = await this.itemService.getItemsByWarehouse(warehouse_id);
+      res.status(200).send(items);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   };
 
-  createStock = async (req, res) => {
-    const itemRequest = new ItemRequest(req.body);
-    itemRequest.warehouse_id = req.params.warehouse_id;
-    console.log(itemRequest);
+  createStock = async (req: Request, res: Response) => {
+    try {
+      const itemRequest = req.body; // Данные валидированы middleware
+      itemRequest.warehouse_id = req.params.warehouse_id;
 
-    const item = await this.itemService.createItem(itemRequest);
-    res.status(201).send(item);
+      const item = await this.itemService.createItem(itemRequest);
+      res.status(201).send(item);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   };
 
-  getStockById = async (req, res) => {
-    const warehouse_id = req.params.warehouse_id;
-    const item_id = req.params.stock_id;
-    const item = await this.itemService.getItemById(warehouse_id, item_id);
-    res.status(200).send(item);
+  getStockById = async (req: Request, res: Response) => {
+    try {
+      const warehouse_id = req.params.warehouse_id;
+      const item_id = req.params.stock_id;
+
+      const item = await this.itemService.getItemById(warehouse_id, item_id);
+      res.status(200).send(item);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   };
 
-  updateStock = async (req, res) => {
-    const item_id = req.params.stock_id;
-    const itemRequest = new ItemRequest(req.body);
-    console.log(itemRequest);
-    const item = await this.itemService.updateItem(item_id, itemRequest);
-    res.status(200).send(item);
+  updateStock = async (req: Request, res: Response) => {
+    try {
+      const item_id = req.params.stock_id;
+      const itemRequest = req.body; // Данные валидированы middleware
+
+      const item = await this.itemService.updateItem(item_id, itemRequest);
+      res.status(200).send(item);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   };
 
-  deleteStock = async (req, res) =>  {
-    const item_id = req.params.stock_id;
-    const resp = await this.itemService.deleteItem(item_id);
-    res.status(200).send(resp);
+  deleteStock = async (req: Request, res: Response) => {
+    try {
+      const item_id = req.params.stock_id;
+
+      const response = await this.itemService.deleteItem(item_id);
+      res.status(200).send(response);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
   };
 }
