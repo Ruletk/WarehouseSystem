@@ -6,6 +6,7 @@ import { StockRouter } from './routes/stockRouter';
 import { createDataSource } from './config/db';
 import { ItemRepository } from './repositories/itemRepository';
 import { ItemService } from './services/itemService';
+import { validationMiddleware } from './middleware/validationMiddleware';
 
 const app = express();
 
@@ -38,7 +39,9 @@ stockRouter.registerRoutes(stockExpressRouter);
 
 // Register API paths
 app.use('/health', healthRouter);
-app.use('/', stockExpressRouter);
+
+// Add stock router with validation middleware
+app.use('/stocks', stockExpressRouter);
 
 // Start the server
 const port = process.env.PORT || 3333;
