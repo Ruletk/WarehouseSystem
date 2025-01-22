@@ -22,9 +22,7 @@ export class Warehouse {
   @Column({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({
-    name: 'updated_at',
-  })
+  @Column({ name: 'updated_at' })
   updatedAt: Date;
 
   @Column({ name: 'deleted_at', nullable: true, default: null })

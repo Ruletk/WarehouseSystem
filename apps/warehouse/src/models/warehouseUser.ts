@@ -17,11 +17,7 @@ export class WarehouseUser {
   @Column({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({
-    name: 'updated_at',
-    default: 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
+  @Column({ name: 'updated_at' })
   updatedAt: Date;
 
   @Column({ name: 'deleted_at', nullable: true, default: null })
