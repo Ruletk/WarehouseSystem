@@ -135,7 +135,7 @@ export class AuthService {
     } catch (error) {
       console.error('ERROR: Unable to create access token', error);
       return ApiResponse.from({
-        code: 500,
+        code: 200,
         type: 'error',
         message: 'Unable to create access token',
       });
