@@ -65,8 +65,9 @@ export class RefreshTokenRepository {
       .createQueryBuilder()
       .update(RefreshToken)
       .set({ expires: now })
-      .where({ token })
+      .where({ token, expires: MoreThan(now) })
       .execute();
+    console.log(updateRes);
     return updateRes.affected !== 0;
   }
 
