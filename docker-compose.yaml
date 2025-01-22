@@ -79,10 +79,17 @@ services:
       context: .
       dockerfile: ./apps/auth/Dockerfile
     container_name: auth
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: db
     networks:
       - internal
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
@@ -100,7 +107,8 @@ services:
     networks:
       - internal
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
@@ -116,7 +124,8 @@ services:
     networks:
       - internal
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
       interval: 1s
