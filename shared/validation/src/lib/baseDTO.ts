@@ -1,6 +1,6 @@
 import { Exclude, Expose, instanceToPlain, plainToClass } from 'class-transformer';
 
-class BaseResponse {
+export class BaseResponse {
   static from<T extends BaseResponse>(this: new () => T, obj: Partial<T>): T {
     return plainToClass(this, obj);
   }
