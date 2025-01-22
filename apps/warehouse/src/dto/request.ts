@@ -1,13 +1,37 @@
-import {BaseDTO, Location} from "./base";
+import {IsNotEmpty, IsNumber, IsString} from "class-validator";
 
-export class WarehouseCreation extends BaseDTO {
+export class WarehouseCreation {
+  @IsNotEmpty()
+  @IsString()
   name: string;
+
+  @IsNotEmpty()
+  @IsString()
   address: string;
-  location: Location;
+
+  @IsNotEmpty()
+  @IsNumber()
+  longitude: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  latitude: number;
 }
 
-export class WarehouseUpdate extends BaseDTO {
+export class WarehouseUpdate {
+  @IsString()
+  @IsNotEmpty()
   name?: string;
+
+  @IsString()
+  @IsNotEmpty()
   address?: string;
-  location?: Location;
+
+  @IsNumber()
+  @IsNotEmpty()
+  longitude?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  latitude?: number;
 }

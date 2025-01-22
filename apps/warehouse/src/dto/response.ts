@@ -1,13 +1,16 @@
-import {TimeInfo, Location, BaseDTO} from "./base";
+import { BaseResponse } from '@warehouse/validation';
 
-export class WarehouseResponse extends BaseDTO {
+export class WarehouseResponse extends BaseResponse {
   id: number;
   name: string;
   address: string;
-  location: Location;
-  timeInfo: TimeInfo;
+  longitude: number;
+  latitude: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
-export class WarehouseList {
+export class WarehouseList extends BaseResponse{
   data: WarehouseResponse[];
 }
