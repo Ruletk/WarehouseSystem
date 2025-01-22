@@ -4,6 +4,7 @@ import { RefreshTokenRepository } from '../repositories/refreshTokenRepository';
 import { JwtService } from './jwtService';
 import { RefreshToken } from '../models/refreshToken';
 import { getRandomValues } from 'crypto';
+import { JwtPayload } from 'jsonwebtoken';
 
 export class TokenService {
   private refreshTokenRepository: RefreshTokenRepository;
@@ -78,6 +79,17 @@ export class TokenService {
 
     // TODO: Implement caching.
     return this.jwtService.generateAccessToken(token.auth);
+  }
+
+  /**
+   * Finds the email address associated with an activation token.
+   *
+   * @param token - The activation token to search for.
+   * @returns A promise that resolves to the email address associated with the token or undefined if not found.
+   */
+  async findActivationToken(token: string): Promise<number> {
+    const decodedToken = this.jwtService.decodeToken(token) as JwtPayload;
+    return decodedToken?.id;
   }
 
   private async generateRefreshToken(): Promise<string> {
