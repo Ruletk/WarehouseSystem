@@ -70,7 +70,6 @@ export class RefreshTokenRepository {
       .set({ expires: now })
       .where({ token, expires: MoreThan(now) })
       .execute();
-    console.log(updateRes);
     return updateRes.affected !== 0;
   }
 

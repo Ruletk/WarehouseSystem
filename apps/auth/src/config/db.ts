@@ -16,7 +16,6 @@ export const AppDataSource = new DataSource({
   // subscribers: ['../subscribers/**/*.ts'],
 });
 
-
 export async function connectDB(): Promise<DataSource> {
   try {
     await AppDataSource.initialize();
