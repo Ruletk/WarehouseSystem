@@ -1,7 +1,11 @@
 import { compare, hash } from 'bcrypt';
 import { Request } from 'express';
 import { ApiResponse } from '@warehouse/validation';
-import { AuthRequest } from '../dto/request';
+import {
+  AuthRequest,
+  PasswordChange,
+  RequestPasswordChange,
+} from '../dto/request';
 import { AuthRepository } from '../repositories/authRepository';
 import { JwtService } from './jwtService';
 import { TokenService } from './tokenService';
@@ -150,7 +154,7 @@ export class AuthService {
   public async activateAccount(token: string) {
     let id = 0;
     try {
-    id = await this.tokenService.findActivationToken(token);
+      id = await this.tokenService.findActivationToken(token);
     } catch (error) {
       console.error('ERROR: Unable to find activation token', error);
       return ApiResponse.from({
@@ -185,7 +189,9 @@ export class AuthService {
     });
   }
 
-  public async forgotPassword(req: AuthRequest): Promise<ApiResponse> {
+  public async forgotPassword(
+    req: RequestPasswordChange
+  ): Promise<ApiResponse> {
     const user = await this.authRepository.findByEmail(req.email);
     if (!user) {
       // Don't want to expose that the email is not found
@@ -206,6 +212,48 @@ export class AuthService {
       code: 200,
       type: 'success',
       message: 'Password reset email sent',
+    });
+  }
+
+  public async changePassword(token: string, req: PasswordChange): Promise<ApiResponse> {
+    console.log('INFO: Change password service called');
+
+    let authId = 0;
+    try {
+    authId = await this.tokenService.findPasswordResetToken(token);
+    } catch (error) {
+      console.error('ERROR: Unable to find password reset token', error);
+      return ApiResponse.from({
+        code: 400,
+        type: 'error',
+        message: 'Invalid token',
+      });
+    }
+    const auth = await this.authRepository.findById(authId);
+
+    const newPassword = await this.hashPassword(req.password);
+    if (auth.password_hash === newPassword) {
+      return ApiResponse.from({
+        code: 400,
+        type: 'error',
+        message: 'New password cannot be the same as the old password',
+      });
+    }
+
+    const res = await this.authRepository.updatePassword(auth.id, newPassword);
+    if (!res) {
+      console.error('ERROR: Unable to update password: ', auth.id);
+      return ApiResponse.from({
+        code: 500,
+        type: 'error',
+        message: 'Unable to update password',
+      });
+    }
+
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Password changed',
     });
   }
 
