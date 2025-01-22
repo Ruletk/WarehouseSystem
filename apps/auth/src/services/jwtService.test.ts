@@ -64,21 +64,21 @@ describe('JwtService', () => {
   describe('generateActivationToken', () => {
     it('should generate an activation token with the given user', () => {
       const user = new Auth();
-      user.email = 'hello@world.com';
+      user.id = 11;
 
       const res = jwtService.generateActivationToken(user);
       const decodedPayload = jwt.verify(res, secret) as jwt.JwtPayload;
-      expect(decodedPayload).toHaveProperty('email', user.email);
+      expect(decodedPayload).toHaveProperty('id', user.id);
     });
   });
   describe('generatePasswordResetToken', () => {
     it('should generate a password reset token with the given user', () => {
       const user = new Auth();
-      user.email = 'hello@world.com';
+      user.id = 12;
 
       const res = jwtService.generatePasswordResetToken(user);
       const decodedPayload = jwt.verify(res, secret) as jwt.JwtPayload;
-      expect(decodedPayload).toHaveProperty('email', user.email);
+      expect(decodedPayload).toHaveProperty('id', user.id);
     });
   });
 });
