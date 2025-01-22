@@ -34,7 +34,7 @@ export class JwtService {
   }
 
   generatePasswordResetToken(user: Auth): string {
-    const payload = { email: user.email };
+    const payload = { id: user.id };
     return this.generateToken(payload, '1h');
   }
 }
