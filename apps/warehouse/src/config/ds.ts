@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm';
 import { Warehouse } from '../models/warehouse';
 import { WarehouseTag } from '../models/warehouseTag';
-import {WarehouseUser} from "../models/warehouseUser";
+import { WarehouseUser } from '../models/warehouseUser';
+
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -15,6 +16,7 @@ export const AppDataSource = new DataSource({
   // migrations: ['../migrations/**/*.ts'],
   // subscribers: ['../subscribers/**/*.ts'],
 });
+
 export async function connectDB(): Promise<DataSource> {
   try {
     await AppDataSource.initialize();
