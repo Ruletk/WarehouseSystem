@@ -1,6 +1,7 @@
 import express from 'express';
 import * as path from 'path';
 import cors from 'cors';
+import cookies from 'cookie-parser';
 
 import { healthRouter } from './routes/healthRouter';
 import { connectDB } from './config/db';
@@ -20,6 +21,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
+app.use(cookies())
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 async function main() {

@@ -36,7 +36,7 @@ export class AuthAPI {
       `INFO: Registering public auth routes with router: ${router.name}.`
     );
 
-    router.get('/logout', this.logoutHandler);
+    router.get('/logout', this.logoutHandler.bind(this));
     router.get('/refresh', this.refreshTokenHandler);
     router.get('/activate/:token', this.activateAccountHandler);
   }
@@ -102,9 +102,15 @@ export class AuthAPI {
     res.json(resp);
   }
 
-  private logoutHandler(req: Request, res: Response) {
-    console.log('Logout handler called');
-    res.json({ message: 'Logout handler called' });
+  private async logoutHandler(req: Request, res: Response) {
+    console.log('INFO: Logout handler called');
+    const token = req.cookies?.auth;
+    console.log(`DEBUG: Token is: ${token}`);
+    if (token)
+      res.clearCookie('auth');
+
+    const resp = await this.authService.logout(token);
+    res.json(resp);
   }
 
   private forgotPassword(req: Request, res: Response) {

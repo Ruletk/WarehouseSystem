@@ -94,6 +94,18 @@ export class AuthService {
     });
   }
 
+  public async logout(token: string): Promise<ApiResponse> {
+    console.log('INFO: Logout service called');
+    const result = await this.tokenService.expireRefreshToken(token);
+    console.log(`DEBUG: Token ${token} is deleted?: ${result}`);
+
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Successfully logged out',
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return hash(password, saltRounds);
   }
