@@ -1,37 +1,93 @@
-import {IsNotEmpty, IsNumber, IsString} from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class WarehouseCreation {
-  @IsNotEmpty()
+export class CreateWarehouseRequest {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  address: string;
-
-  @IsNotEmpty()
   @IsNumber()
-  longitude: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  latitude: number;
-}
-
-export class WarehouseUpdate {
-  @IsString()
-  @IsNotEmpty()
-  name?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  address?: string;
+  @IsOptional()
+  latitude?: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   longitude?: number;
 
+  @IsString()
+  @IsOptional()
+  address?: string;
+}
+
+export class UpdateWarehouseRequest {
   @IsNumber()
   @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsNumber()
+  @IsOptional()
   latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
+}
+
+export class CreateTagRequest {
+  @IsString()
+  @IsNotEmpty()
+  tag: string;
+}
+
+export class UpdateTagRequest {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  tag: string;
+}
+
+export class CreateRoleRequest {
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+}
+
+export class UpdateRoleRequest {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+}
+
+export class AssignUserRoleRequest {
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+}
+
+export class RemoveUserRoleRequest {
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
 }
