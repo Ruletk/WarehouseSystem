@@ -37,7 +37,7 @@ export class AuthAPI {
     );
 
     router.get('/logout', this.logoutHandler.bind(this));
-    router.get('/refresh', this.refreshTokenHandler);
+    router.get('/refresh', this.refreshTokenHandler.bind(this));
     router.get('/activate/:token', this.activateAccountHandler);
   }
 
@@ -106,8 +106,7 @@ export class AuthAPI {
     console.log('INFO: Logout handler called');
     const token = req.cookies?.auth;
     console.log(`DEBUG: Token is: ${token}`);
-    if (token)
-      res.clearCookie('auth');
+    if (token) res.clearCookie('auth');
 
     const resp = await this.authService.logout(token);
     res.json(resp);
@@ -123,9 +122,16 @@ export class AuthAPI {
     res.json({ message: 'Change password handler called', data: req.body });
   }
 
-  private refreshTokenHandler(req: Request, res: Response) {
+  private async refreshTokenHandler(req: Request, res: Response) {
     console.log('Refresh token handler called');
-    res.json({ message: 'Refresh token handler called' });
+    const refreshToken = req.cookies?.auth;
+    const resp = await this.authService.getAccessToken(refreshToken);
+
+    if (resp.code == 500) return res.status(resp.code).json(resp);
+
+    // Guraunteed to have a data.token property
+    res.header('X-Access-Token', resp.data.token as string);
+    res.json(resp);
   }
 
   private activateAccountHandler(req: Request, res: Response) {

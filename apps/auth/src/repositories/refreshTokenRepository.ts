@@ -50,7 +50,10 @@ export class RefreshTokenRepository {
    * @returns A promise that resolves to the found RefreshToken object or undefined if not found.
    */
   async findByToken(token: string): Promise<RefreshToken | undefined> {
-    return this.refreshTokenRepository.findOne({ where: { token, expires: MoreThan(new Date()) } });
+    return this.refreshTokenRepository.findOne({
+      where: { token, expires: MoreThan(new Date()) },
+      relations: ['auth'],
+    });
   }
 
   /**

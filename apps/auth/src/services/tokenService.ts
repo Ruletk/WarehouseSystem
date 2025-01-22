@@ -26,10 +26,11 @@ export class TokenService {
    * @returns {Promise<string>} A promise that resolves to the newly created refresh token.
    */
   async createRefreshToken(auth: Auth, req: Request): Promise<string> {
+    const now = new Date();
     const refreshToken = await this.generateRefreshToken();
     await this.refreshTokenRepository.create(
       auth,
-      new Date(),
+      new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000),
       refreshToken,
       req.headers['user-agent'] as string,
       req.headers['x-forwarded-for'] as string

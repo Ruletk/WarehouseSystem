@@ -4,17 +4,18 @@ import { Auth } from '../models/auth';
 const ACCESS_EXPIRES_IN = '15m';
 
 export class JwtService {
-  private readonly secret: string = 'TOP-SECRET-TOKEN-KEY';
+  private readonly secret: jwt.Secret = 'TOP-SECRET-TOKEN-KEY';
 
   constructor() {
     console.log('INFO: Creating JwtService instance');
-    this.secret = process.env.JWT_SECRET;
+    this.secret = process.env.JWT_SECRET || this.secret;
   }
 
   generateToken(
     payload: Record<string, unknown>,
     expiresIn: string = ACCESS_EXPIRES_IN
   ): string {
+    console.log('INFO: Generating token');
     return jwt.sign(payload, this.secret, { expiresIn });
   }
 

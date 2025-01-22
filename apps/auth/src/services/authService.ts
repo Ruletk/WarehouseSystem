@@ -106,6 +106,39 @@ export class AuthService {
     });
   }
 
+  public async getAccessToken(refreshToken: string): Promise<ApiResponse> {
+    if (!refreshToken) {
+      console.log('ERROR: No refresh token provided');
+      // Because of nginx proxy, we need to return a 200 status code
+      // To not trigger the error handler in the backend.
+      return ApiResponse.from({
+        code: 200,
+        type: 'error',
+        message: 'No refresh token provided',
+      });
+    }
+    let token = '';
+    try {
+      token = await this.tokenService.createAccessToken(refreshToken);
+    } catch (error) {
+      console.error('ERROR: Unable to create access token', error);
+      return ApiResponse.from({
+        code: 500,
+        type: 'error',
+        message: 'Unable to create access token',
+      });
+    }
+
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Access token created',
+      data: {
+        token,
+      },
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return hash(password, saltRounds);
   }
