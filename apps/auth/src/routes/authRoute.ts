@@ -64,7 +64,7 @@ export class AuthAPI {
     router.post(
       '/change-password/:token',
       validateRequest(PasswordChange),
-      this.changePasswordHandler
+      this.changePasswordHandler.bind(this)
     );
   }
 
@@ -118,9 +118,11 @@ export class AuthAPI {
     res.status(resp.code).json(resp);
   }
 
-  private changePasswordHandler(req: Request, res: Response) {
+  private async changePasswordHandler(req: Request, res: Response) {
     console.log('Change password handler called');
-    res.json({ message: 'Change password handler called', data: req.body });
+    const token = req.params.token;
+    const resp = await this.authService.changePassword(token, req.body);
+    res.status(resp.code).json(resp);
   }
 
   private async refreshTokenHandler(req: Request, res: Response) {

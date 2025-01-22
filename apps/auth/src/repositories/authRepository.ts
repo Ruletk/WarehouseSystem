@@ -60,7 +60,7 @@ export class AuthRepository {
    * @param password_hash - The new password hash to be set.
    * @returns A promise that resolves to a boolean indicating whether the update was successful.
    */
-  async updatePassword(id: string, password_hash: string): Promise<boolean> {
+  async updatePassword(id: number, password_hash: string): Promise<boolean> {
     // Don't need to get entity, just update the password_hash
     const updateRes = await this.authRepository.update(id, {
       password_hash,
@@ -89,7 +89,7 @@ export class AuthRepository {
    * @param id - The unique identifier of the account to deactivate.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully deactivated.
    */
-  async deactivateAccount(id: string): Promise<boolean> {
+  async deactivateAccount(id: number): Promise<boolean> {
     const updateRes = await this.authRepository.update(id, {
       is_active: false,
       updated_at: new Date(),
@@ -103,7 +103,7 @@ export class AuthRepository {
    * @param id - The unique identifier of the account to be deleted.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully marked as deleted.
    */
-  async deleteAccount(id: string): Promise<boolean> {
+  async deleteAccount(id: number): Promise<boolean> {
     // Keep updated_at for audit purposes, not updating it here
     const updateRes = await this.authRepository.update(id, {
       deleted_at: new Date(),
@@ -117,7 +117,7 @@ export class AuthRepository {
    * @param id - The unique identifier of the account to be deleted.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully deleted.
    */
-  async hardDeleteAccount(id: string): Promise<boolean> {
+  async hardDeleteAccount(id: number): Promise<boolean> {
     const deleteRes = await this.authRepository.delete(id);
     return deleteRes.affected === 1;
   }

@@ -100,6 +100,11 @@ export class TokenService {
     return decodedToken?.id;
   }
 
+  async findPasswordResetToken(token: string): Promise<number> {
+    const decodedToken = this.jwtService.decodeToken(token) as JwtPayload;
+    return decodedToken?.id;
+  }
+
   private async generateRefreshToken(): Promise<string> {
     const array = new Uint8Array(48);
     getRandomValues(array);
