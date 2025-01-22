@@ -44,6 +44,10 @@ export class TokenService {
     return this.jwtService.generateActivationToken(auth);
   }
 
+  async createPasswordResetToken(auth: Auth): Promise<string> {
+    return this.jwtService.generatePasswordResetToken(auth);
+  }
+
   /**
    * Finds a refresh token by its token string.
    *

@@ -59,7 +59,7 @@ export class AuthAPI {
     router.post(
       '/forgot-password',
       validateRequest(RequestPasswordChange),
-      this.forgotPassword
+      this.forgotPassword.bind(this)
     );
     router.post(
       '/change-password/:token',
@@ -112,9 +112,10 @@ export class AuthAPI {
     res.json(resp);
   }
 
-  private forgotPassword(req: Request, res: Response) {
+  private async forgotPassword(req: Request, res: Response) {
     console.log('Forgot password handler called');
-    res.json({ message: 'Forgot password handler called', data: req.body });
+    const resp = await this.authService.forgotPassword(req.body);
+    res.status(resp.code).json(resp);
   }
 
   private changePasswordHandler(req: Request, res: Response) {

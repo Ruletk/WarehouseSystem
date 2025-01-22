@@ -185,6 +185,30 @@ export class AuthService {
     });
   }
 
+  public async forgotPassword(req: AuthRequest): Promise<ApiResponse> {
+    const user = await this.authRepository.findByEmail(req.email);
+    if (!user) {
+      // Don't want to expose that the email is not found
+      // To prevent enumeration attacks. Loggin the error is enough.
+      // Logging for analysis purposes, and for metrics, response on attacks.
+      console.log(`INFO: User with email ${req.email} not found`);
+      return ApiResponse.from({
+        code: 200,
+        type: 'success',
+        message: 'Password reset email sent',
+      });
+    }
+
+    const resetToken = await this.tokenService.createPasswordResetToken(user);
+    this.emailSerivce.sendPasswordResetEmail(user.email, resetToken);
+
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Password reset email sent',
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return hash(password, saltRounds);
   }
