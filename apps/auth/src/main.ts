@@ -16,13 +16,15 @@ import { EmailService } from './services/emailService';
 const app = express();
 
 // Initialize middlewares
-app.use(cors({
-  origin: ['*'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin: ['*'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.use(express.json());
-app.use(cookies())
+app.use(cookies());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 async function main() {
@@ -37,16 +39,19 @@ async function main() {
   const jwtService = new JwtService();
   const emailService = new EmailService();
   const tokenService = new TokenService(refreshTokenRepository, jwtService);
-  const authService = new AuthService(authRepository, tokenService, jwtService, emailService);
+  const authService = new AuthService(
+    authRepository,
+    tokenService,
+    jwtService,
+    emailService
+  );
 
   // Initialize APIs
   const authAPI = new AuthAPI(authService);
 
-
   // Initialize routers
   const authRouter = express.Router();
   authAPI.registerRoutes(authRouter);
-
 
   // Register routers
   app.use('/', authRouter);

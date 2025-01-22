@@ -215,12 +215,15 @@ export class AuthService {
     });
   }
 
-  public async changePassword(token: string, req: PasswordChange): Promise<ApiResponse> {
+  public async changePassword(
+    token: string,
+    req: PasswordChange
+  ): Promise<ApiResponse> {
     console.log('INFO: Change password service called');
 
     let authId = 0;
     try {
-    authId = await this.tokenService.findPasswordResetToken(token);
+      authId = await this.tokenService.findPasswordResetToken(token);
     } catch (error) {
       console.error('ERROR: Unable to find password reset token', error);
       return ApiResponse.from({

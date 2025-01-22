@@ -78,28 +78,19 @@ export class AuthAPI {
     console.log('Login handler called');
     const resp = await this.authService.login(req.body, req);
 
-    if (resp.type === 'error') {
-      res.status(resp.code).json(resp);
-      return;
-    }
-
-    res.cookie('auth', resp.data?.token, {
-      maxAge: 31536000000,
-      httpOnly: true,
-    });
-    res.json(resp);
+    if (resp.data?.token)
+      res.cookie('auth', resp.data?.token, {
+        maxAge: 31536000000,
+        httpOnly: true,
+      });
+    res.status(resp.code).json(resp);
   }
 
   private async registerHandler(req: Request, res: Response) {
     console.log('Register handler called');
     const resp = await this.authService.register(req.body);
 
-    if (resp.type === 'error') {
-      res.status(resp.code).json(resp);
-      return;
-    }
-
-    res.json(resp);
+    res.status(resp.code).json(resp);
   }
 
   private async logoutHandler(req: Request, res: Response) {
@@ -109,7 +100,7 @@ export class AuthAPI {
     if (token) res.clearCookie('auth');
 
     const resp = await this.authService.logout(token);
-    res.json(resp);
+    res.status(resp.code).json(resp);
   }
 
   private async forgotPassword(req: Request, res: Response) {
@@ -130,11 +121,10 @@ export class AuthAPI {
     const refreshToken = req.cookies?.auth;
     const resp = await this.authService.getAccessToken(refreshToken);
 
-    if (resp.code == 500) return res.status(resp.code).json(resp);
-
     // Guraunteed to have a data.token property
-    res.header('X-Access-Token', resp.data.token as string);
-    res.json(resp);
+    if (resp.data?.token)
+      res.header('X-Access-Token', resp.data.token as string);
+    res.status(resp.code).json(resp);
   }
 
   private async activateAccountHandler(req: Request, res: Response) {

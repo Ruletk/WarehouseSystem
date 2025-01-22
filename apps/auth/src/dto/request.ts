@@ -1,4 +1,3 @@
-
 import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
 
 export class AuthRequest {
@@ -12,14 +11,12 @@ export class AuthRequest {
   password: string;
 }
 
-
 export class RequestPasswordChange {
   @IsString()
   @IsEmail()
   @IsNotEmpty()
   email: string;
 }
-
 
 export class PasswordChange {
   @IsString()
