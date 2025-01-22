@@ -1,36 +1,38 @@
-import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm"
-import {WarehouseTag} from "./warehouseTag";
-import {WarehouseUser} from "./warehouseUser";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { WarehouseTag } from './warehouseTag';
+import { WarehouseUser } from './warehouseUser';
 
 @Entity({ name: 'warehouses' })
 export class Warehouse {
   @PrimaryGeneratedColumn({ name: 'warehouse_id' })
-    id: number
+  id: number;
 
   @Column({ name: 'name', unique: true })
-  name: string
+  name: string;
 
   @Column({ name: 'latitude', nullable: true })
-  latitude: number
+  latitude: number;
 
   @Column({ name: 'longitude', nullable: true })
-  longitude: number
+  longitude: number;
 
   @Column({ name: 'address', nullable: true })
-  address: string
+  address: string;
 
-  @Column({ name: 'created_at', default: 'CURRENT_TIMESTAMP' })
-  createdAt: Date
+  @Column({ name: 'created_at' })
+  createdAt: Date;
 
-  @Column({ name: 'updated_at', default: 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
-  updatedAt: Date
+  @Column({
+    name: 'updated_at',
+  })
+  updatedAt: Date;
 
   @Column({ name: 'deleted_at', nullable: true, default: null })
-  deletedAt: Date
+  deletedAt: Date;
 
-  @OneToMany(() => WarehouseTag, tag => tag.warehouse)
+  @OneToMany(() => WarehouseTag, (tag) => tag.warehouse)
   tags: WarehouseTag[];
 
-  @OneToMany(() => WarehouseUser, user => user.warehouse)
+  @OneToMany(() => WarehouseUser, (user) => user.warehouse)
   users: WarehouseUser[];
 }

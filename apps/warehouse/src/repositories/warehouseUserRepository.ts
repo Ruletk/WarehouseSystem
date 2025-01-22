@@ -1,6 +1,6 @@
 import { DataSource, Repository } from 'typeorm';
 import { WarehouseUser } from '../models/warehouseUser';
-import {Warehouse} from "../models/warehouse";
+import { Warehouse } from '../models/warehouse';
 
 export class WarehouseUserRepository {
   private appDataSource: DataSource;
@@ -11,8 +11,16 @@ export class WarehouseUserRepository {
     this.repository = appDataSource.getRepository(WarehouseUser);
   }
 
-  async create(warehouseId: Warehouse, userId: number, role: string): Promise<WarehouseUser> {
-    const warehouseUser = this.repository.create({ warehouse: warehouseId, userId, role });
+  async create(
+    warehouseId: Warehouse,
+    userId: number,
+    role: string
+  ): Promise<WarehouseUser> {
+    const warehouseUser = this.repository.create({
+      warehouse: warehouseId,
+      userId,
+      role,
+    });
     return await this.repository.save(warehouseUser);
   }
 
@@ -36,7 +44,10 @@ export class WarehouseUserRepository {
     return users.map((user) => user.userId);
   }
 
-  async findUsersByRoleAndWarehouse(role: string, warehouseId: Warehouse): Promise<WarehouseUser[]> {
+  async findUsersByRoleAndWarehouse(
+    role: string,
+    warehouseId: Warehouse
+  ): Promise<WarehouseUser[]> {
     return await this.repository.find({
       where: { role, warehouse: warehouseId },
     });

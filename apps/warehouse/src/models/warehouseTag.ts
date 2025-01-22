@@ -1,24 +1,30 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm"
-import {Warehouse} from "./warehouse";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Warehouse } from './warehouse';
 
 @Entity({ name: 'warehouse_tags' })
 export class WarehouseTag {
   @PrimaryGeneratedColumn({ name: 'tag_id' })
-  tagId: number
+  tagId: number;
 
   @Column({ name: 'tag' })
-  tag: string
+  tag: string;
 
-  @ManyToOne(() => Warehouse, warehouse => warehouse.tags)
-  @JoinColumn({ name: 'warehouse_id' })
   warehouse: Warehouse;
 
-  @Column({ name: 'created_at', default: 'CURRENT_TIMESTAMP' })
-  createdAt: Date
+  @Column({ name: 'created_at' })
+  createdAt: Date;
 
-  @Column({ name: 'updated_at', default: 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
-  updatedAt: Date
+  @Column({
+    name: 'updated_at',
+  })
+  updatedAt: Date;
 
   @Column({ name: 'deleted_at', nullable: true, default: null })
-  deletedAt: Date
+  deletedAt: Date;
 }
