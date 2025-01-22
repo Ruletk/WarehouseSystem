@@ -168,7 +168,7 @@ export class AuthService {
       return ApiResponse.from({
         code: 404,
         type: 'error',
-        message: 'Invalid token',
+        message: 'Account not found',
       });
 
     // No validation required because the token is already generated valid
