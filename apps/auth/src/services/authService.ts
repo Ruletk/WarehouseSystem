@@ -139,6 +139,44 @@ export class AuthService {
     });
   }
 
+  public async activateAccount(token: string) {
+    let id = 0;
+    try {
+    id = await this.tokenService.findActivationToken(token);
+    } catch (error) {
+      console.error('ERROR: Unable to find activation token', error);
+      return ApiResponse.from({
+        code: 400,
+        type: 'error',
+        message: 'Invalid token',
+      });
+    }
+
+    if (!id)
+      return ApiResponse.from({
+        code: 404,
+        type: 'error',
+        message: 'Invalid token',
+      });
+
+    // No validation required because the token is already generated valid
+    // only if hacked then error will be thrown
+
+    const res = await this.authRepository.activateAccount(id);
+    if (!res)
+      return ApiResponse.from({
+        code: 500,
+        type: 'error',
+        message: 'Unable to activate account',
+      });
+
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Account activated',
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return hash(password, saltRounds);
   }

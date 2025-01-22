@@ -75,7 +75,7 @@ export class AuthRepository {
    * @param id - The unique identifier of the user account to activate.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully activated.
    */
-  async activateAccount(id: string): Promise<boolean> {
+  async activateAccount(id: number): Promise<boolean> {
     const updateRes = await this.authRepository.update(id, {
       is_active: true,
       updated_at: new Date(),

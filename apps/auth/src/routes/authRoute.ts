@@ -38,7 +38,7 @@ export class AuthAPI {
 
     router.get('/logout', this.logoutHandler.bind(this));
     router.get('/refresh', this.refreshTokenHandler.bind(this));
-    router.get('/activate/:token', this.activateAccountHandler);
+    router.get('/activate/:token', this.activateAccountHandler.bind(this));
   }
 
   private registerPublicOnlyRoutes(router: Router): void {
@@ -134,8 +134,11 @@ export class AuthAPI {
     res.json(resp);
   }
 
-  private activateAccountHandler(req: Request, res: Response) {
+  private async activateAccountHandler(req: Request, res: Response) {
     console.log('Activate account handler called');
-    res.json({ message: 'Activate account handler called' });
+    const token = req.params.token;
+    const resp = await this.authService.activateAccount(token);
+
+    res.status(resp.code).json(resp);
   }
 }
