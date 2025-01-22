@@ -40,6 +40,10 @@ export class TokenService {
     return refreshToken;
   }
 
+  async createActivationToken(auth: Auth): Promise<string> {
+    return this.jwtService.generateActivationToken(auth);
+  }
+
   /**
    * Finds a refresh token by its token string.
    *

@@ -5,6 +5,7 @@ import { AuthRequest } from '../dto/request';
 import { AuthRepository } from '../repositories/authRepository';
 import { JwtService } from './jwtService';
 import { TokenService } from './tokenService';
+import { EmailService } from './emailService';
 
 const saltRounds = 10;
 
@@ -12,16 +13,19 @@ export class AuthService {
   private authRepository: AuthRepository;
   private tokenService: TokenService;
   private jwtService: JwtService;
+  private emailSerivce: EmailService;
 
   constructor(
     authRepository: AuthRepository,
     tokenService: TokenService,
-    jwtService: JwtService
+    jwtService: JwtService,
+    emailService: EmailService
   ) {
     console.log('INFO: Creating AuthService instance');
     this.authRepository = authRepository;
     this.tokenService = tokenService;
     this.jwtService = jwtService;
+    this.emailSerivce = emailService;
   }
 
   public async login(req: AuthRequest, data: Request): Promise<ApiResponse> {
@@ -86,6 +90,10 @@ export class AuthService {
     const passwordHash = await this.hashPassword(req.password);
     const user = await this.authRepository.create(req.email, passwordHash);
     console.log(`DEBUG: User created: ${user.id}.`);
+
+    console.log('DEBUG: Sending activation email');
+    const activationToken = await this.tokenService.createActivationToken(user);
+    this.emailSerivce.sendActivationEmail(user.email, activationToken);
 
     return ApiResponse.from({
       code: 201,
