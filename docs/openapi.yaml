@@ -26,7 +26,7 @@ tags:
   - name: admin
     description: Admin panel
 
-  
+
 paths:
   # Authentication
   /auth/login:
@@ -34,7 +34,7 @@ paths:
       tags:
         - auth
       summary: User login
-      description: WIP
+      description: Login user with provided email and password and set cookie with token.
       operationId: authLogin
       requestBody:
         description: Login user.
@@ -45,6 +45,13 @@ paths:
       responses:
         "200":
           description: Successful login
+          headers:
+            Set-Cookie:
+              description: Authentication session token
+              schema:
+                type: string
+                format: token
+                example: "auth=NANpACT1PrqcW%2Bks9HjE7h1NCxhpyzgEtziqKS1bjETBhbQoN%2BReWpXm37DpjgRX; Max-Age=31536000; Path=/; Expires=Thu, 22 Jan 2026 18:30:55 GMT; HttpOnly"
           content:
             application/json:
               schema:
@@ -56,13 +63,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiResponse"
               examples:
-                invalidEmail:
+                invalidSchema:
                   value:
                     code: 400
                     type: error
-                    message: "Invalid request"
-        "401":
-          description: Bad login
+                    message: "Invalid request data"
+        "404":
+          description: Not found
           content:
             application/json:
               schema:
@@ -70,16 +77,16 @@ paths:
               examples:
                 wrongEmailOrPassword:
                   value:
-                    code: 401
+                    code: 404
                     type: error
-                    message: "Wrong email or password"
+                    message: "Invalid email or password"
 
   /auth/register:
     post:
       tags:
         - auth
       summary: User Registration
-      description: WIP
+      description: Register new user and send activation email.
       operationId: authRegistration
       requestBody:
         description: User register.
@@ -101,11 +108,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiResponse"
               examples:
-                invalidEmail:
+                invalidSchema:
                   value:
                     code: 400
                     type: error
-                    message: "Invalid request"
+                    message: "Invalid request data"
         "409":
           description: User already registered
           content:
@@ -117,15 +124,17 @@ paths:
                   value:
                     code: 409
                     type: error
-                    message: "User with this email already registered"
+                    message: "User already exists"
 
   /auth/logout:
     get:
       tags:
         - auth
       summary: User logout
-      description: WIP
+      description: Logout user and destroy token.
       operationId: authLogout
+      security:
+        - cookieAuth: [ ]
       responses:
         "200":
           description: Successful logout
@@ -145,7 +154,7 @@ paths:
       tags:
         - auth
       summary: Reset password
-      description: WIP
+      description: Request password reset link to be sent to provided email.
       operationId: resetPassword
       requestBody:
         description: Reset password.
@@ -165,7 +174,7 @@ paths:
                   value:
                     code: 200
                     type: success
-                    message: "Password reset"
+                    message: "Password reset email sent"
         "400":
           description: Invalid request
           content:
@@ -173,18 +182,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiResponse"
               examples:
-                invalidEmail:
+                invalidSchema:
                   value:
                     code: 400
                     type: error
-                    message: "Invalid request"
+                    message: "Invalid request data"
 
   /auth/change-password/{token}:
     post:
       tags:
         - auth
       summary: Change password
-      description: WIP
+      description: Change password with provided token and new password in request body.
       operationId: changePassword
       parameters:
         - name: token
@@ -195,7 +204,7 @@ paths:
             type: string
             format: token
       requestBody:
-        description: Change password.
+        description: New password.
         content:
           application/json:
             schema:
@@ -214,6 +223,69 @@ paths:
                     type: success
                     message: "Password changed"
         "400":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                invalidEmail:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid token"
+                invalidSchema:
+                  value:
+                    code: 400
+                    type: error
+                    message: "Invalid request data"
+                samePassword:
+                  value:
+                    code: 400
+                    type: error
+                    message: "New password cannot be the same as the old password"
+        "500":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                serverError:
+                  value:
+                    code: 500
+                    type: error
+                    message: "Unable to update password"
+
+  /auth/activate/{token}:
+    get:
+      tags:
+        - auth
+      summary: Activate account
+      description: Activates account with provided token.
+      operationId: activateAccount
+      parameters:
+        - name: token
+          in: path
+          description: "Activation token"
+          required: true
+          schema:
+            type: string
+            format: token
+      responses:
+        "200":
+          description: Account activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                success:
+                  value:
+                    code: 200
+                    type: success
+                    message: "Account activated"
+        "400":
           description: Invalid request
           content:
             application/json:
@@ -224,21 +296,32 @@ paths:
                   value:
                     code: 400
                     type: error
-                    message: "Invalid request"
-        "401":
-          description: Unauthenticated
+                    message: "Invalid token"
+        "404":
+          description: Not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        "403":
-          description: Forbidden
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                notFound:
+                  value:
+                    code: 404
+                    type: error
+                    message: "Account not found"
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ForbiddenResponse"
-  
-  
+                $ref: "#/components/schemas/ApiResponse"
+              examples:
+                serverError:
+                  value:
+                    code: 500
+                    type: error
+                    message: "Unable to activate account"
+
   # Warehouses
   /warehouse/list:
     get:
@@ -944,7 +1027,7 @@ components:
           type: string
           format: password
           example: this is super secret password
-    
+
     AuthResponse:
       type: object
       properties:
@@ -966,7 +1049,7 @@ components:
           type: string
       xml:
         name: "##default"
-    
+
     TimeInfo:
       type: object
       properties:
@@ -990,7 +1073,7 @@ components:
           type: number
           format: double
           example: 71.418143
-    
+
     WarehouseResponse:
       type: object
       properties:
@@ -1005,7 +1088,7 @@ components:
           $ref: '#/components/schemas/Location'
         time_info:
           $ref: '#/components/schemas/TimeInfo'
-        
+
     WarehousesResponse:
       type: array
       items:
@@ -1101,7 +1184,7 @@ components:
               value:
                 type: string
                 example: "Red"
-    
+
     Notification:
       type: object
       properties:
@@ -1124,19 +1207,15 @@ components:
         email:
           type: string
           format: email
-          example:
-    
+          example: "myPersonalEmail@example.com"
+
     ChangePasswordRequest:
       type: object
       properties:
-        old_password:
+        password:
           type: string
           format: password
-          example:
-        new_password:
-          type: string
-          format: password
-          example:
+          example: "this is super secret new password"
 
     UnauthorizedResponse:
       type: object
@@ -1174,7 +1253,7 @@ components:
     cookieAuth:
       type: apiKey
       in: cookie
-      name: session_token
+      name: auth
 
 
 security:
