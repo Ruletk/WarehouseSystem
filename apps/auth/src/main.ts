@@ -11,6 +11,7 @@ import { AuthService } from './services/authService';
 import { TokenService } from './services/tokenService';
 import { JwtService } from './services/jwtService';
 import { RefreshTokenRepository } from './repositories/refreshTokenRepository';
+import { EmailService } from './services/emailService';
 
 const app = express();
 
@@ -34,8 +35,9 @@ async function main() {
 
   // Initialize services
   const jwtService = new JwtService();
+  const emailService = new EmailService();
   const tokenService = new TokenService(refreshTokenRepository, jwtService);
-  const authService = new AuthService(authRepository, tokenService, jwtService);
+  const authService = new AuthService(authRepository, tokenService, jwtService, emailService);
 
   // Initialize APIs
   const authAPI = new AuthAPI(authService);
