@@ -1,20 +1,20 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import AuthService from "../../services/AuthService";
+import React from 'react';
+import { logout } from '../../services/AuthService';
 
 const LogoutButton: React.FC = () => {
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
     try {
-      await AuthService.logout();
-      navigate("/login");
+      await logout();
+      console.log('Logged out successfully');
+      // Redirect or update state as needed
     } catch (error) {
-      console.error("Logout failed", error);
+      console.error('Error logging out:', error);
     }
   };
 
-  return <button onClick={handleLogout}>Logout</button>;
+  return (
+    <button onClick={handleLogout}>Logout</button>
+  );
 };
 
 export default LogoutButton;

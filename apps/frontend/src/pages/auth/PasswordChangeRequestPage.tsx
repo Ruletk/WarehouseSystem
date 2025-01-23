@@ -1,36 +1,31 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthService from "../../services/AuthService";
+import React, { useState } from 'react';
+import { resetPassword } from '../../services/AuthService';
 
 const PasswordChangeRequestPage: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
 
-  const handlePasswordChangeRequest = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await AuthService.requestPasswordChange(email);
-      alert("Password reset link has been sent to your email.");
-      navigate("/login");
+      await resetPassword(email);
+      console.log('Password reset email sent');
     } catch (error) {
-      console.error("Password change request failed", error);
+      console.error('Error sending reset email:', error);
     }
   };
 
   return (
     <div>
-      <h2>Password Change Request</h2>
-      <form onSubmit={handlePasswordChangeRequest}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Submit</button>
+      <h1>Reset Password</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <button type="submit">Send Reset Link</button>
       </form>
     </div>
   );
