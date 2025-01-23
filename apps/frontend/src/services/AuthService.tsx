@@ -1,95 +1,74 @@
-class AuthService {
-  private baseUrl = '/api/v1';
+import axios from 'axios';
 
-  async login(email: string, password: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({ email, password }),
-      credentials:'include'
+const API_BASE_URL = 'http://localhost:3333/api/v1';
+
+export const login = async (email: string, password: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      email,
+      password,
     });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
-    }
-
-    return response.json();
+    return response.data;
+  } catch (error) {
+    throw error;
   }
+};
 
-  async register(email: string, password: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/register`, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({ email, password })
+export const register = async (email: string, password: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+      email,
+      password,
     });
-
-    if (!response.ok) {
-      throw new Error('Registration failed');
-    }
-
-    return response.json();
+    return response.data;
+  } catch (error) {
+    throw error;
   }
+};
 
-  async requestPasswordChange(email: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/reset-password`, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({ email })
+export const logout = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/logout`, {
+      withCredentials: true,
     });
-
-    if (!response.ok) {
-      throw new Error('Password change request failed');
-    }
-
-    return response.json();
+    return response.data;
+  } catch (error) {
+    throw error;
   }
+};
 
-  async logout(): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/logout`, {
-      method:'GET',
-      credentials:'include'
+export const resetPassword = async (email: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, {
+      email,
     });
-
-    if (!response.ok) {
-      throw new Error('Logout failed');
-    }
-
-    return response.json();
+    return response.data;
+  } catch (error) {
+    throw error;
   }
+};
 
-  async changePassword(token: string, newPassword: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/change-password/${token}`, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({ password:newPassword })
-    });
-
-    if (!response.ok) {
-      throw new Error('Password change failed');
-    }
-
-    return response.json();
+export const changePassword = async (token: string, newPassword: string) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/change-password/${token}`,
+      {
+        password: newPassword,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
   }
+};
 
-  async activateAccount(token: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/auth/activate/${token}`, {
-      method:'GET'
-    });
-
-    if (!response.ok) {
-      throw new Error('Account activation failed');
-    }
-
-    return response.json();
+export const activateAccount = async (token: string) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/auth/activate/${token}`
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
   }
-}
-
-export default new AuthService();
+};
