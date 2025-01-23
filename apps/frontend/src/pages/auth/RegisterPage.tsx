@@ -2,25 +2,25 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../../services/AuthService";
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await AuthService.login(email, password);
-      navigate("/warehouse");
+      await AuthService.register(email, password);
+      navigate("/login");
     } catch (error) {
-      console.error("Login failed", error);
+      console.error("Registration failed", error);
     }
   };
 
   return (
     <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
         <div>
           <label>Email:</label>
           <input
@@ -39,14 +39,13 @@ const LoginPage: React.FC = () => {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
       <div>
-        <button onClick={() => navigate("/forgot-password")}>Forgot Password?</button>
-        <button onClick={() => navigate("/register")}>Don't have an account?</button>
+        <button onClick={() => navigate("/login")}>Already have an account?</button>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
