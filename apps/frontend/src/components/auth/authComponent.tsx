@@ -1,42 +1,51 @@
-// apps/frontend/src/components/auth/authComponent.ts
-import React from 'react';
+import React, { useState } from 'react';
+import { login, register } from '../../services/AuthService';
 
-interface AuthComponentProps {
-  onLogin: (username: string, password: string) => void;
-}
+const AuthComponent: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
 
-const AuthComponent: React.FC<AuthComponentProps> = ({ onLogin }) => {
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(username, password);
+    try {
+      if (isLogin) {
+        const response = await login(email, password);
+        console.log('Login successful:', response);
+      } else {
+        const response = await register(email, password);
+        console.log('Registration successful:', response);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
     <div>
-      <label htmlFor="username">Username:</label>
-  <input
-  id="username"
-  type="text"
-  value={username}
-  onChange={(e) => setUsername(e.target.value)}
-  />
-  </div>
-  <div>
-  <label htmlFor="password">Password:</label>
-  <input
-  id="password"
-  type="password"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-  />
-  </div>
-  <button type="submit">Login</button>
-    </form>
-);
+      <h1>{isLogin ? 'Login' : 'Register'}</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">{isLogin ? 'Login' : 'Register'}</button>
+      </form>
+      <button onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? 'Switch to Register' : 'Switch to Login'}
+      </button>
+    </div>
+  );
 };
 
 export default AuthComponent;

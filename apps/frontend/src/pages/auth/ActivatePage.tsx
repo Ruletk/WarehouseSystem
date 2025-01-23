@@ -1,28 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import AuthService from "../../services/AuthService";
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { activateAccount } from '../../services/AuthService';
 
 const ActivatePage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
-  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const activateAccount = async () => {
-      try {
-        await AuthService.activateAccount(token!);
-        setMessage("Account successfully activated.");
-      } catch (error) {
-        setMessage("Account activation failed.");
-      }
-    };
-
-    activateAccount();
+    if (token) {
+      activateAccount(token)
+        .then(() => {
+          console.log('Account activated successfully');
+        })
+        .catch((error) => {
+          console.error('Error activating account:', error);
+        });
+    }
   }, [token]);
 
   return (
     <div>
-      <h1>Account Activation</h1>
-      {message && <p>{message}</p>}
+      <h1>Activate Account</h1>
+      <p>Activating your account...</p>
     </div>
   );
 };
