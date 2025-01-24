@@ -54,7 +54,9 @@ services:
   # External exposed port is 80
   ### For development branch it temporarily uses the same image as backend
   ### But later it will be changed to the frontend image (react + nginx)
-    image: nginx:1.27.3
+    build:
+      context: .
+      dockerfile: ./apps/frontend/Dockerfile
     container_name: frontend-server
     environment:
       - TZ=Asia/Aqtobe
