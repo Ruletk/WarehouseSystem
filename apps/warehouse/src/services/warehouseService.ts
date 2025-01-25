@@ -1,5 +1,5 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
-import { CreateWarehouseRequest, UpdateWarehouseRequest } from '../dto/request';
+import {CreateTagRequest, CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
 import {
   WarehouseListResponse,
   WarehouseResponse,
@@ -215,6 +215,33 @@ export class WarehouseService {
     } catch (error) {
       // Handle errors
       console.error('Error fetching warehouses by tags:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async createTag(
+    tag: string,
+    req: CreateTagRequest
+  ): Promise<WarehouseTagResponse | ApiResponse> {
+    try {
+      // Create the warehouse using repository
+      const warehouse = await this.warehouseRepository.createTag(req.tag);
+
+      if (!warehouse) {
+        return ApiResponse.from({
+          message: 'Failed to create warehouse with the provided tag.',
+        });
+      }
+
+      // Transform the created warehouse into WarehouseResponse format
+      return WarehouseTagResponse.from({
+        tag,
+      });
+    } catch (error) {
+      console.error('Error creating warehouse with tag:', error);
       return ApiResponse.from({
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',

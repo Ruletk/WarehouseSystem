@@ -125,7 +125,7 @@ export class WarehouseAPI {
 
   private async getTagsHandler(req, res) {
     try {
-      const tagsResponse = await this.warehouseService.getAllTags('');
+      const tagsResponse = await this.warehouseTagService.getAllTags('');
       if ('code' in tagsResponse) {
         return res.status(tagsResponse.code).send(tagsResponse);
       }
@@ -138,10 +138,22 @@ export class WarehouseAPI {
     }
   }
 
-  private createTagHandler(req, res) {
-    res.status(201).send({
-      message: 'Hello World',
-    });
+  private async createTagHandler(req, res) {
+    try {
+      const tagResponse = await this.warehouseTagService.createTag(
+        (req.body as CreateTagRequest).tag,
+        req.body as CreateTagRequest
+      );
+      if ('code' in tagResponse) {
+        return res.status(tagResponse.code).send(tagResponse);
+      }
+      res.status(201).send(tagResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while creating the tag.',
+        error: error.message,
+      });
+    }
   }
 
   private updateTagHandler(req, res) {
