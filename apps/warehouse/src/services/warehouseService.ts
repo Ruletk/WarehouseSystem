@@ -505,4 +505,42 @@ export class WarehouseService {
       });
     }
   }
+
+  public async removeUserRole(userId: number): Promise<ApiResponse> {
+    try {
+      // Fetch the user by userId to verify existence
+      const user = await this.warehouseRepository.findById(userId);
+
+      if (!user) {
+        return ApiResponse.from({
+          message: "User with id ${userId} not found",
+        });
+      }
+
+      // Find roles associated with the user
+      const userRoles = await this.warehouseRepository.findWarehousesByUserId(
+        userId
+      );
+
+      if (!userRoles || userRoles.length === 0) {
+        return ApiResponse.from({
+          message: "No role associated with user id ${userId}",
+      });
+      }
+
+      // Delete the roles associated with the user using the repository
+      await this.warehouseRepository.softDelete(userId);
+
+      // Return a successful response
+      return ApiResponse.from({
+        message: "Roles associated with user id ${userId} deleted successfully",
+    });
+    } catch (error) {
+      console.error('Error deleting roles by user id:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
 }
