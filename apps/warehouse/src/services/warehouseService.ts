@@ -288,4 +288,32 @@ export class WarehouseService {
       });
     }
   }
+
+  public async deleteTagById(id: number): Promise<ApiResponse> {
+    try {
+      // Find the tag by its ID using the repository
+      const existingTag = await this.warehouseRepository.findById(id);
+
+      if (!existingTag) {
+        return ApiResponse.from({
+          message: `Tag with id ${id} not found`,
+        });
+      }
+
+      // Soft delete the tag using the repository
+      await this.warehouseRepository.softDelete(id);
+
+      // Return a successful response
+      return ApiResponse.from({
+        message: 'Tag deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting tag by id:', error);
+
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
 }

@@ -181,10 +181,27 @@ export class WarehouseAPI {
     }
   }
 
-  private deleteTagHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async deleteTagHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid tag ID.' });
+    }
+
+    try {
+      const deleteResponse = await this.warehouseTagService.deleteTagById(id);
+
+      if ('code' in deleteResponse) {
+        return res.status(deleteResponse.code).send(deleteResponse);
+      }
+
+      res.status(200).send({ message: 'Tag deleted successfully.' });
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while deleting the tag.',
+        error: error.message,
+      });
+    }
   }
 
   private getRolesHandler(req, res) {
