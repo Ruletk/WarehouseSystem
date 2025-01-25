@@ -1,5 +1,7 @@
 import { DataSource, Repository } from 'typeorm';
 import { Warehouse } from '../models/warehouse';
+import { WarehouseTag } from '../models/warehouseTag';
+import { WarehouseUser } from '../models/warehouseUser';
 
 export class WarehouseRepository {
   private appDataSource: DataSource;
@@ -22,7 +24,16 @@ export class WarehouseRepository {
       longitude,
       address,
     });
+
     return await this.repository.save(warehouse);
+  }
+
+  async createTag(tag: string): Promise<WarehouseTag> {
+    const newTag = this.appDataSource.getRepository(WarehouseTag).create({
+      tag,
+    });
+
+    return this.appDataSource.getRepository(WarehouseTag).save(newTag);
   }
 
   async update(updateData: Partial<Warehouse>): Promise<void> {
