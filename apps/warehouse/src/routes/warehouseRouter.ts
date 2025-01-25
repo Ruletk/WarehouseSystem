@@ -220,10 +220,22 @@ export class WarehouseAPI {
     }
   }
 
-  private createRoleHandler(req, res) {
-    res.status(201).send({
-      message: 'Hello World',
-    });
+  private async createRoleHandler(req, res) {
+    try {
+      const roleResponse = await this.warehouseUserService.createRoleById(
+        0,
+        req.body as CreateRoleRequest
+      );
+      if ('code' in roleResponse) {
+        return res.status(roleResponse.code).send(roleResponse);
+      }
+      res.status(201).send(roleResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while creating the role.',
+        error: error.message,
+      });
+    }
   }
 
   private updateRoleHandler(req, res) {

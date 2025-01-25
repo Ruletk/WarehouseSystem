@@ -1,7 +1,8 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
 import {
+  CreateRoleRequest,
   CreateTagRequest,
-  CreateWarehouseRequest,
+  CreateWarehouseRequest, UpdateRoleRequest,
   UpdateTagRequest,
   UpdateWarehouseRequest,
 } from '../dto/request';
@@ -350,4 +351,48 @@ export class WarehouseService {
       });
     }
   }
+
+  public async createRoleById(
+    id: number,
+    req: CreateRoleRequest
+  ): Promise<WarehouseRoleResponse | ApiResponse> {
+    try {
+      // Check if the role already exists by its ID
+      const existingRole = await this.warehouseRepository.findById(id);
+
+      if (existingRole) {
+        return ApiResponse.from({
+          message: "Role with id ${id} already exists",
+        });
+      }
+
+      // Create the new role using the repository
+      const createdRole = await this.warehouseRepository.createRole(
+        id,
+        req.role
+      );
+
+      if (!createdRole) {
+        return ApiResponse.from({
+          message: 'Failed to create role',
+        });
+      }
+
+      // Transform the created role into the response format
+      return WarehouseRoleResponse.from({
+        id: createdRole.id,
+        role: createdRole.role,
+        createdAt: createdRole.createdAt,
+        updatedAt: createdRole.updatedAt,
+      });
+    } catch (error) {
+      console.error('Error creating role by id:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+
 }

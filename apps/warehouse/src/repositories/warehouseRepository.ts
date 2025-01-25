@@ -36,6 +36,14 @@ export class WarehouseRepository {
     return this.appDataSource.getRepository(WarehouseTag).save(newTag);
   }
 
+  async createRole(id: number, name: string): Promise<WarehouseUser> {
+    const newRole = this.appDataSource.getRepository(WarehouseUser).create({
+      id: id,
+      role: name,
+    });
+    return this.appDataSource.getRepository(WarehouseUser).save(newRole);
+  }
+
   async update(updateData: Partial<Warehouse>): Promise<void> {
     await this.repository.update(updateData.id, updateData);
   }
