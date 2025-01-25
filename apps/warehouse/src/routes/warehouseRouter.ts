@@ -8,21 +8,22 @@ import {
   UpdateTagRequest,
   UpdateWarehouseRequest
 } from "../dto/request";
+import {WarehouseService} from "../services/warehouseService";
 
 
 export class WarehouseAPI {
   // # Uncomment the following lines to enable dependency injection
 
-  // private warehouseService: WarehouseService;
+  private warehouseService: WarehouseService;
   // private warehouseTagService: WarehouseTagService;
   // private warehouseUserService: WarehouseUserService;
   constructor(
-    // warehouseService: WarehouseService,
+    warehouseService: WarehouseService,
     // warehouseTagService: WarehouseTagService,
     // warehouseUserService: WarehouseUserService
   ) {
     console.log('INFO: Creating WarehouseAPI instance');
-    // this.warehouseService = warehouseService;
+    this.warehouseService = warehouseService;
     // this.warehouseTagService = warehouseTagService;
     // this.warehouseUserService = warehouseUserService;
   }
@@ -71,15 +72,15 @@ export class WarehouseAPI {
   }
 
   private getWarehousesHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+    const resp = await this.warehouseService.getAllWarehouses();
+    if ('code' in resp) return res.status(resp.code).send(resp);
+    res.status(200).send(resp);
   }
 
   private createWarehouseHandler(req, res) {
-    res.status(201).send({
-      message: 'Hello World',
-    });
+    const resp = await this.warehouseService.createWarehouse(req.body);
+    if ('code' in resp) return res.status(resp.code).send(resp);
+    res.status(201).send(resp);
   }
 
   private updateWarehouseHandler(req, res) {
