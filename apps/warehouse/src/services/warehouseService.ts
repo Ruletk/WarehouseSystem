@@ -1,7 +1,12 @@
-import {WarehouseRepository} from '../repositories/warehouseRepository';
-import {CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
-import {WarehouseListResponse, WarehouseResponse} from '../dto/response';
-import {ApiResponse} from '@warehouse/validation';
+import { WarehouseRepository } from '../repositories/warehouseRepository';
+import { CreateWarehouseRequest, UpdateWarehouseRequest } from '../dto/request';
+import {
+  WarehouseListResponse,
+  WarehouseResponse,
+  WarehouseTagListResponse,
+  WarehouseTagResponse,
+} from '../dto/response';
+import { ApiResponse } from '@warehouse/validation';
 
 export class WarehouseService {
   private warehouseRepository: WarehouseRepository;
@@ -58,7 +63,7 @@ export class WarehouseService {
       );
 
       // Возвращаем результат
-      return WarehouseListResponse.from({warehouses: warehouseResponses});
+      return WarehouseListResponse.from({ warehouses: warehouseResponses });
     } catch (error) {
       console.error('Ошибка при получении складов:', error);
       return ApiResponse.from({
@@ -70,7 +75,7 @@ export class WarehouseService {
   public async updateWarehouseById(
     req: UpdateWarehouseRequest
   ): Promise<WarehouseResponse | ApiResponse> {
-    const {id, name, latitude, longitude, address} = req;
+    const { id, name, latitude, longitude, address } = req;
 
     try {
       // Найти склад по идентификатору
@@ -159,7 +164,7 @@ export class WarehouseService {
 
       if (!warehouse) {
         return ApiResponse.from({
-          message: "Warehouse with id ${id} not found",
+          message: 'Warehouse with id ${id} not found',
         });
       }
 
@@ -183,4 +188,37 @@ export class WarehouseService {
     }
   }
 
+  public async getAllTags(
+    tag: string
+  ): Promise<WarehouseTagListResponse | ApiResponse> {
+    try {
+      // Find warehouses by tags using the repository
+      const warehouses = await this.warehouseRepository.findByTagName(tag);
+      if (!warehouses || warehouses.length === 0) {
+        return ApiResponse.from({
+          message: 'No warehouses found for the provided tags.',
+        });
+      }
+
+      // Transform the data into WarehouseResponse format
+      const warehouseTagResponses = warehouses.map((warehouse) =>
+        WarehouseTagResponse.from({
+          tagId: warehouse.id,
+          tag: warehouse.name,
+          createdAt: warehouse.createdAt,
+          updatedAt: warehouse.updatedAt,
+        })
+      );
+
+      // Return the response
+      return WarehouseTagListResponse.from({ tags: warehouseTagResponses });
+    } catch (error) {
+      // Handle errors
+      console.error('Error fetching warehouses by tags:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
 }
