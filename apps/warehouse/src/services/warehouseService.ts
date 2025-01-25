@@ -1,7 +1,7 @@
-import { WarehouseRepository } from '../repositories/warehouseRepository';
-import { CreateWarehouseRequest, UpdateWarehouseRequest } from '../dto/request';
-import { WarehouseListResponse, WarehouseResponse } from '../dto/response';
-import { ApiResponse } from '@warehouse/validation';
+import {WarehouseRepository} from '../repositories/warehouseRepository';
+import {CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
+import {WarehouseListResponse, WarehouseResponse} from '../dto/response';
+import {ApiResponse} from '@warehouse/validation';
 
 export class WarehouseService {
   private warehouseRepository: WarehouseRepository;
@@ -58,7 +58,7 @@ export class WarehouseService {
       );
 
       // Возвращаем результат
-      return WarehouseListResponse.from({ warehouses: warehouseResponses });
+      return WarehouseListResponse.from({warehouses: warehouseResponses});
     } catch (error) {
       console.error('Ошибка при получении складов:', error);
       return ApiResponse.from({
@@ -70,7 +70,7 @@ export class WarehouseService {
   public async updateWarehouseById(
     req: UpdateWarehouseRequest
   ): Promise<WarehouseResponse | ApiResponse> {
-    const { id, name, latitude, longitude, address } = req;
+    const {id, name, latitude, longitude, address} = req;
 
     try {
       // Найти склад по идентификатору
@@ -149,4 +149,38 @@ export class WarehouseService {
       });
     }
   }
+
+  public async getWarehouseById(
+    id: number
+  ): Promise<WarehouseResponse | ApiResponse> {
+    try {
+      // Найти склад по идентификатору
+      const warehouse = await this.warehouseRepository.findById(id);
+
+      if (!warehouse) {
+        return ApiResponse.from({
+          message: "Warehouse with id ${id} not found",
+        });
+      }
+
+      // Возвращаем информацию о складе в формате WarehouseResponse
+      return WarehouseResponse.from({
+        id: warehouse.id,
+        name: warehouse.name,
+        latitude: warehouse.latitude,
+        longitude: warehouse.longitude,
+        address: warehouse.address,
+        createdAt: warehouse.createdAt,
+        updatedAt: warehouse.updatedAt,
+      });
+    } catch (error) {
+      // Обработка ошибок
+      console.error('Error fetching warehouse by id:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
 }

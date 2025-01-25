@@ -108,10 +108,18 @@ export class WarehouseAPI {
 
   }
 
-  private getWarehouseHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async getWarehouseHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    }
+
+    const warehouseResponse = await this.warehouseService.getWarehouseById(id);
+    if ('code' in warehouseResponse) {
+      return res.status(warehouseResponse.code).send(warehouseResponse);
+    }
+
+    res.status(200).send(warehouseResponse);
   }
 
   private getTagsHandler(req, res) {
