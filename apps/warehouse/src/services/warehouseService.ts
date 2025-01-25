@@ -394,5 +394,51 @@ export class WarehouseService {
     }
   }
 
+  public async updateRoleById(
+    id: number,
+    req: UpdateRoleRequest
+  ): Promise<WarehouseRoleResponse | ApiResponse> {
+    try {
+      // Find the existing role by its ID using the repository
+      const existingRole = await this.warehouseRepository.findById(id);
 
+      if (!existingRole) {
+        return ApiResponse.from({
+          code: 404,
+          message: "Role with id ${id} not found",
+        });
+      }
+
+      // Update the role data using the repository
+      await this.warehouseRepository.update({
+        id: id,
+        name: req.role,
+      });
+
+      // Fetch the updated role data
+      const updatedRole = await this.warehouseRepository.findById(id);
+
+      if (!updatedRole) {
+        return ApiResponse.from({
+          code: 500,
+          message: "Failed to retrieve updated role with id ${id}",
+        });
+      }
+
+      // Transform the updated role into the response format
+      return WarehouseRoleResponse.from({
+        id: updatedRole.id,
+        role: updatedRole.name,
+        createdAt: updatedRole.createdAt,
+        updatedAt: updatedRole.updatedAt,
+      });
+    } catch (error) {
+      console.error('Error updating role:', error);
+      return ApiResponse.from({
+        code: 500,
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
 }
