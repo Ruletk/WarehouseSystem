@@ -1,5 +1,9 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
-import {CreateTagRequest, CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
+import {
+  CreateTagRequest,
+  CreateWarehouseRequest, UpdateTagRequest,
+  UpdateWarehouseRequest,
+} from '../dto/request';
 import {
   WarehouseListResponse,
   WarehouseResponse,
@@ -242,6 +246,42 @@ export class WarehouseService {
       });
     } catch (error) {
       console.error('Error creating warehouse with tag:', error);
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async updateTagById(
+    id: number,
+    req: UpdateTagRequest
+  ): Promise<WarehouseTagResponse | ApiResponse> {
+    try {
+      // Find existing tag by its ID using the repository
+      const existingTag = await this.warehouseRepository.findById(id);
+
+      if (!existingTag) {
+        return ApiResponse.from({
+          message: `Tag with id ${id} not found`,
+        });
+      }
+
+      // Update the tag data using the repository
+      await this.warehouseRepository.update({
+        id: id,
+        name: req.tag,
+      });
+
+      // Transform the updated tag into the response format
+      return WarehouseTagResponse.from({
+        tagId: id,
+        tag: existingTag.name,
+        createdAt: existingTag.createdAt,
+        updatedAt: existingTag.updatedAt,
+      });
+    } catch (error) {
+      console.error('Error updating tag by id:', error);
       return ApiResponse.from({
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',

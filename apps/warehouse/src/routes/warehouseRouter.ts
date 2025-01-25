@@ -156,10 +156,29 @@ export class WarehouseAPI {
     }
   }
 
-  private updateTagHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async updateTagHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid tag ID.' });
+    }
+
+    try {
+      const updateResponse = await this.warehouseTagService.updateTagById(
+        id,
+        req.body as UpdateTagRequest
+      );
+
+      if ('code' in updateResponse) {
+        return res.status(updateResponse.code).send(updateResponse);
+      }
+
+      res.status(200).send(updateResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while updating the tag.',
+        error: error.message,
+      });
+    }
   }
 
   private deleteTagHandler(req, res) {
