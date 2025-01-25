@@ -10,6 +10,7 @@ import {
 } from "../dto/request";
 import {WarehouseService} from "../services/warehouseService";
 import {WarehouseTagService} from "../services/warehouseTagService";
+import {WarehouseUserService} from "../services/warehouseUserService"
 
 
 export class WarehouseAPI {
@@ -17,16 +18,16 @@ export class WarehouseAPI {
 
   private warehouseService: WarehouseService;
   private warehouseTagService: WarehouseTagService;
-  // private warehouseUserService: WarehouseUserService;
+  private warehouseUserService: WarehouseUserService;
   constructor(
     warehouseService: WarehouseService,
     warehouseTagService: WarehouseTagService,
-    // warehouseUserService: WarehouseUserService
+    warehouseUserService: WarehouseUserService
   ) {
     console.log('INFO: Creating WarehouseAPI instance');
     this.warehouseService = warehouseService;
     this.warehouseTagService = warehouseTagService;
-    // this.warehouseUserService = warehouseUserService;
+    this.warehouseUserService = warehouseUserService;
   }
 
   registerRoutes(router: Router): void {
@@ -204,10 +205,19 @@ export class WarehouseAPI {
     }
   }
 
-  private getRolesHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async getRolesHandler(req, res) {
+    try {
+      const rolesResponse = await this.warehouseUserService.getAllRoles();
+      if ('code' in rolesResponse) {
+        return res.status(rolesResponse.code).send(rolesResponse);
+      }
+      res.status(200).send(rolesResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while fetching roles.',
+        error: error.message,
+      });
+    }
   }
 
   private createRoleHandler(req, res) {
