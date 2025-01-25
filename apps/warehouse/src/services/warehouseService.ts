@@ -2,7 +2,8 @@ import { WarehouseRepository } from '../repositories/warehouseRepository';
 import {
   CreateRoleRequest,
   CreateTagRequest,
-  CreateWarehouseRequest, UpdateRoleRequest,
+  CreateWarehouseRequest,
+  UpdateRoleRequest,
   UpdateTagRequest,
   UpdateWarehouseRequest,
 } from '../dto/request';
@@ -362,7 +363,7 @@ export class WarehouseService {
 
       if (existingRole) {
         return ApiResponse.from({
-          message: "Role with id ${id} already exists",
+          message: 'Role with id ${id} already exists',
         });
       }
 
@@ -405,7 +406,7 @@ export class WarehouseService {
       if (!existingRole) {
         return ApiResponse.from({
           code: 404,
-          message: "Role with id ${id} not found",
+          message: 'Role with id ${id} not found',
         });
       }
 
@@ -421,7 +422,7 @@ export class WarehouseService {
       if (!updatedRole) {
         return ApiResponse.from({
           code: 500,
-          message: "Failed to retrieve updated role with id ${id}",
+          message: 'Failed to retrieve updated role with id ${id}',
         });
       }
 
@@ -436,6 +437,33 @@ export class WarehouseService {
       console.error('Error updating role:', error);
       return ApiResponse.from({
         code: 500,
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async deleteRoleById(id: number): Promise<ApiResponse> {
+    try {
+      // Find the role by its ID using the repository
+      const existingRole = await this.warehouseRepository.findById(id);
+
+      if (!existingRole) {
+        return ApiResponse.from({
+          message: 'Role with id ${id} not found',
+        });
+      }
+
+      // Soft delete the role using the repository
+      await this.warehouseRepository.softDelete(id);
+
+      // Return a successful response
+      return ApiResponse.from({
+        message: 'Role deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting role by id:', error);
+      return ApiResponse.from({
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });

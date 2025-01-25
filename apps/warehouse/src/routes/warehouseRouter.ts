@@ -261,10 +261,24 @@ export class WarehouseAPI {
     }
   }
 
-  private deleteRoleHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async deleteRoleHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid role ID.' });
+    }
+
+    try {
+      const deleteResponse = await this.warehouseUserService.deleteRoleById(id);
+      if ('code' in deleteResponse) {
+        return res.status(deleteResponse.code).send(deleteResponse);
+      }
+      res.status(200).send({ message: 'Role deleted successfully.' });
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while deleting the role.',
+        error: error.message,
+      });
+    }
   }
 
   private assignUserRoleHandler(req, res) {
