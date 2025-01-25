@@ -238,10 +238,27 @@ export class WarehouseAPI {
     }
   }
 
-  private updateRoleHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async updateRoleHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid role ID.' });
+    }
+
+    try {
+      const updateResponse = await this.warehouseUserService.updateRoleById(
+        id,
+        req.body as UpdateRoleRequest
+      );
+      if ('code' in updateResponse) {
+        return res.status(updateResponse.code).send(updateResponse);
+      }
+      res.status(200).send(updateResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while updating the role.',
+        error: error.message,
+      });
+    }
   }
 
   private deleteRoleHandler(req, res) {
