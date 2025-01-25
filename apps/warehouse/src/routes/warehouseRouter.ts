@@ -281,10 +281,27 @@ export class WarehouseAPI {
     }
   }
 
-  private assignUserRoleHandler(req, res) {
-    res.status(201).send({
-      message: 'Hello World',
-    });
+  private async assignUserRoleHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid role ID.' });
+    }
+
+    try {
+      const assignResponse = await this.warehouseUserService.assignUserRole(
+        id,
+        req.body as AssignUserRoleRequest
+      );
+      if ('code' in assignResponse) {
+        return res.status(assignResponse.code).send(assignResponse);
+      }
+      res.status(200).send(assignResponse);
+    } catch (error) {
+      res.status(500).send({
+        message: 'An error occurred while assigning the user to the role.',
+        error: error.message,
+      });
+    }
   }
 
   private removeUserRoleHandler(req, res) {

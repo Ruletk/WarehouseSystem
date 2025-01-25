@@ -1,5 +1,6 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
 import {
+  AssignUserRoleRequest,
   CreateRoleRequest,
   CreateTagRequest,
   CreateWarehouseRequest,
@@ -13,7 +14,7 @@ import {
   WarehouseRoleListResponse,
   WarehouseRoleResponse,
   WarehouseTagListResponse,
-  WarehouseTagResponse,
+  WarehouseTagResponse, WarehouseUserRoleResponse,
 } from '../dto/response';
 import { ApiResponse } from '@warehouse/validation';
 
@@ -464,6 +465,41 @@ export class WarehouseService {
     } catch (error) {
       console.error('Error deleting role by id:', error);
       return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async assignUserRole(
+    userId: number,
+    req: AssignUserRoleRequest
+  ): Promise<WarehouseUserRoleResponse | ApiResponse> {
+    try {
+      // Verify the existence of the user
+      const user = await this.warehouseRepository.findById(userId);
+
+      if (!user) {
+        return ApiResponse.from({
+          code: 404,
+          message: "User with id ${userId} not found",
+        });
+      }// Assign the role to the user
+      const newRole = await this.warehouseRepository.createRole(
+        userId,
+        req.role
+      );
+
+      // Transform the assigned role into the response format
+      return WarehouseUserRoleResponse.from({
+        userId: userId,
+        role: newRole.role,
+        assignedAt: newRole.createdAt,
+      });
+    } catch (error) {
+      console.error('Error assigning role to user:', error);
+      return ApiResponse.from({
+        code: 500,
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });
