@@ -1,12 +1,15 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
 import {
   CreateTagRequest,
-  CreateWarehouseRequest, UpdateTagRequest,
+  CreateWarehouseRequest,
+  UpdateTagRequest,
   UpdateWarehouseRequest,
 } from '../dto/request';
 import {
   WarehouseListResponse,
   WarehouseResponse,
+  WarehouseRoleListResponse,
+  WarehouseRoleResponse,
   WarehouseTagListResponse,
   WarehouseTagResponse,
 } from '../dto/response';
@@ -310,6 +313,37 @@ export class WarehouseService {
     } catch (error) {
       console.error('Error deleting tag by id:', error);
 
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async getAllRoles(): Promise<WarehouseRoleListResponse | ApiResponse> {
+    try {
+      // Fetch all roles from the repository
+      const roles = await this.warehouseRepository.findAll();
+
+      if (!roles || roles.length === 0) {
+        return ApiResponse.from({
+          message: 'No roles found',
+        });
+      }
+
+      // Transform the roles into RoleResponse format
+      const roleResponses = roles.map((role) =>
+        WarehouseRoleResponse.from({
+          id: role.id,
+          role: role.name,
+          createdAt: role.createdAt,
+          updatedAt: role.updatedAt,
+        })
+      );
+      // Return the roles in a RoleListResponse format
+      return WarehouseRoleListResponse.from({ roles: roleResponses });
+    } catch (error) {
+      console.error('Error fetching roles:', error);
       return ApiResponse.from({
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
