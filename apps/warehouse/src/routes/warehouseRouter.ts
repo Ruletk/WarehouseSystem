@@ -93,10 +93,19 @@ export class WarehouseAPI {
     res.status(200).send(updateResponse);
   }
 
-  private deleteWarehouseHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async deleteWarehouseHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    }
+
+    const deleteResponse = await this.warehouseService.deleteWarehouseById(id);
+    if ('code' in deleteResponse) {
+      return res.status(deleteResponse.code).send(deleteResponse);
+    }
+
+    res.status(200).send({ message: 'Warehouse deleted successfully.' });
+
   }
 
   private getWarehouseHandler(req, res) {

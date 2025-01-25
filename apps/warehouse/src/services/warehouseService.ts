@@ -1,5 +1,5 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
-import {CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
+import { CreateWarehouseRequest, UpdateWarehouseRequest } from '../dto/request';
 import { WarehouseListResponse, WarehouseResponse } from '../dto/response';
 import { ApiResponse } from '@warehouse/validation';
 
@@ -78,7 +78,7 @@ export class WarehouseService {
 
       if (!existingWarehouse) {
         return ApiResponse.from({
-          message: "Warehouse with id ${id} not found",
+          message: 'Warehouse with id ${id} not found',
         });
       }
 
@@ -96,7 +96,7 @@ export class WarehouseService {
 
       if (!updatedWarehouse) {
         return ApiResponse.from({
-          message: "Failed to retrieve updated warehouse with id ${id}",
+          message: 'Failed to retrieve updated warehouse with id ${id}',
         });
       }
 
@@ -113,6 +113,35 @@ export class WarehouseService {
     } catch (error) {
       // Обработка ошибок
       console.error('Error updating warehouse:', error);
+
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    }
+  }
+
+  public async deleteWarehouseById(id: number): Promise<ApiResponse> {
+    try {
+      // Найти склад по идентификатору
+      const existingWarehouse = await this.warehouseRepository.findById(id);
+
+      if (!existingWarehouse) {
+        return ApiResponse.from({
+          message: 'Warehouse with id ${id} not found',
+        });
+      }
+
+      // Мягкое удаление склада
+      await this.warehouseRepository.softDelete(id);
+
+      // Возвращаем успешный ответ
+      return ApiResponse.from({
+        message: 'Warehouse deleted successfully',
+      });
+    } catch (error) {
+      // Обработка ошибок
+      console.error('Error deleting warehouse:', error);
 
       return ApiResponse.from({
         message:
