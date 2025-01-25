@@ -71,22 +71,26 @@ export class WarehouseAPI {
     router.delete('/roles/:id/user', validateRequest(RemoveUserRoleRequest), this.removeUserRoleHandler.bind(this));
   }
 
-  private getWarehousesHandler(req, res) {
+  private async getWarehousesHandler(req, res) {
     const resp = await this.warehouseService.getAllWarehouses();
     if ('code' in resp) return res.status(resp.code).send(resp);
     res.status(200).send(resp);
   }
 
-  private createWarehouseHandler(req, res) {
+  private async createWarehouseHandler(req, res) {
     const resp = await this.warehouseService.createWarehouse(req.body);
     if ('code' in resp) return res.status(resp.code).send(resp);
     res.status(201).send(resp);
   }
 
-  private updateWarehouseHandler(req, res) {
-    res.status(200).send({
-      message: 'Hello World',
-    });
+  private async updateWarehouseHandler(req, res) {
+    const updateResponse = await this.warehouseService.updateWarehouseById({
+      id: parseInt(req.params.id, 10),
+      ...req.body,
+    } as UpdateWarehouseRequest);
+    if ('code' in updateResponse)
+      return res.status(updateResponse.code).send(updateResponse);
+    res.status(200).send(updateResponse);
   }
 
   private deleteWarehouseHandler(req, res) {

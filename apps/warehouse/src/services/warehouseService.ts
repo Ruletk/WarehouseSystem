@@ -1,5 +1,5 @@
 import { WarehouseRepository } from '../repositories/warehouseRepository';
-import { CreateWarehouseRequest } from '../dto/request';
+import {CreateWarehouseRequest, UpdateWarehouseRequest} from '../dto/request';
 import { WarehouseListResponse, WarehouseResponse } from '../dto/response';
 import { ApiResponse } from '@warehouse/validation';
 
@@ -63,6 +63,60 @@ export class WarehouseService {
       console.error('Ошибка при получении складов:', error);
       return ApiResponse.from({
         message: 'Не удалось получить список складов.',
+      });
+    }
+  }
+
+  public async updateWarehouseById(
+    req: UpdateWarehouseRequest
+  ): Promise<WarehouseResponse | ApiResponse> {
+    const { id, name, latitude, longitude, address } = req;
+
+    try {
+      // Найти склад по идентификатору
+      const existingWarehouse = await this.warehouseRepository.findById(id);
+
+      if (!existingWarehouse) {
+        return ApiResponse.from({
+          message: "Warehouse with id ${id} not found",
+        });
+      }
+
+      // Обновить склад с новыми данными
+      await this.warehouseRepository.update({
+        id,
+        name: name ?? existingWarehouse.name,
+        latitude: latitude ?? existingWarehouse.latitude,
+        longitude: longitude ?? existingWarehouse.longitude,
+        address: address ?? existingWarehouse.address,
+      });
+
+      // Получить обновленный склад
+      const updatedWarehouse = await this.warehouseRepository.findById(id);
+
+      if (!updatedWarehouse) {
+        return ApiResponse.from({
+          message: "Failed to retrieve updated warehouse with id ${id}",
+        });
+      }
+
+      // Вернуть успешный ответ с информацией о складе
+      return WarehouseResponse.from({
+        id: updatedWarehouse.id,
+        name: updatedWarehouse.name,
+        latitude: updatedWarehouse.latitude,
+        longitude: updatedWarehouse.longitude,
+        address: updatedWarehouse.address,
+        createdAt: updatedWarehouse.createdAt,
+        updatedAt: updatedWarehouse.updatedAt,
+      });
+    } catch (error) {
+      // Обработка ошибок
+      console.error('Error updating warehouse:', error);
+
+      return ApiResponse.from({
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }
