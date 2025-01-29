@@ -185,7 +185,7 @@ export class WarehouseAPI {
     if (isNaN(id)) return res.status(400).send({ message: 'Invalid role ID.' });
 
     try {
-      const response = await this.warehouseTagService.deleteRoleById(id);
+      const response = await this.warehouseUserService.deleteRoleById(id);
       handleResponse(res, response);
     } catch (error) {
       res.status(500).send({ message: 'An error occurred while deleting the role.', error: error.message });
