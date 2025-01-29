@@ -6,6 +6,9 @@ import { connectDB } from './config/ds';
 import { WarehouseRepository } from './repositories/warehouseRepository';
 import { WarehouseTagRepository } from './repositories/warehouseTagRepository';
 import { WarehouseUserRepository } from './repositories/warehouseUserRepository';
+import {WarehouseUserService} from "./services/warehouseUserService";
+import {WarehouseTagService} from "./services/warehouseTagService";
+import {WarehouseService} from "./services/warehouseService";
 
 const app = express();
 
@@ -27,9 +30,11 @@ async function main() {
   // True if all are initialized
 
   // Initialize Services
-
+  const warehouseService = new WarehouseService(warehouseRepository);
+  const warehouseTagService = new WarehouseTagService(warehouseTagRepository);
+  const warehouseUserService = new WarehouseUserService(warehouseUserRepository);
   // Initialize APIs
-  const warehouseAPI = new WarehouseAPI();
+  const warehouseAPI = new WarehouseAPI(warehouseService, warehouseTagService, warehouseUserService);
 
   // Initialize Routers
   const warehouseRouter = express.Router();
