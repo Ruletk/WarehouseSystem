@@ -54,6 +54,7 @@ export class ItemRepository {
 
   async findByIdAndWarehouse(
     item_id: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     warehouse_id: number
   ): Promise<Item | null> {
     return await this.repository.findOneBy({ item_id });

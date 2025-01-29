@@ -1,5 +1,6 @@
-import { ItemRequest } from '../dto/request';
-import { ApiResponse, ItemListResponse, ItemResponse } from '../dto/response';
+import { ApiResponse } from '@warehouse/validation';
+import { CreateItemRequest, UpdateItemRequest } from '../dto/request';
+import { ItemListResponse, ItemResponse } from '../dto/response';
 import { ItemRepository } from '../repositories/itemRepository';
 
 export class ItemService {
@@ -9,7 +10,7 @@ export class ItemService {
     this.itemRepository = itemRepository;
   }
 
-  async createItem(req: ItemRequest): Promise<ItemResponse> {
+  async createItem(req: CreateItemRequest): Promise<ItemResponse> {
     const item = await this.itemRepository.create(
       req.warehouse_id,
       req.quantity,
@@ -18,36 +19,49 @@ export class ItemService {
       req.name,
       req.description
     );
-    return ItemResponse.fromModel(item);
+    return ItemResponse.from(item);
   }
 
-  async updateItem(item_id: number, req: ItemRequest): Promise<ItemResponse> {
+  async updateItem(
+    item_id: number,
+    req: UpdateItemRequest
+  ): Promise<ItemResponse> {
     // TODO: Refactor it, make in 1 query request
     const item = await this.itemRepository.findById(item_id);
     if (!item) {
       throw new Error('Item not found');
     }
     await this.itemRepository.update({ ...item, ...req });
-    return ItemResponse.fromModel({ ...item, ...req });
+    return ItemResponse.from({ ...item, ...req });
   }
 
   async deleteItem(item_id: number): Promise<ApiResponse> {
     await this.itemRepository.softDelete(item_id);
-    return new ApiResponse(200, 'success', 'Item deleted successfully');
+    return ApiResponse.from({
+      code: 200,
+      type: 'success',
+      message: 'Item deleted successfully',
+    });
   }
 
   async getItemsByWarehouse(warehouse_id: number): Promise<ItemListResponse> {
     const items = await this.itemRepository.findByWarehouse(warehouse_id);
-    return ItemListResponse.fromModel(items);
+    return ItemListResponse.from({
+      items: items.map((item) => ItemResponse.from(item)),
+    });
   }
 
-  async getItemById(warehouse_id: number, item_id: number): Promise<ItemResponse> {
-    const item = await this.itemRepository.findByIdAndWarehouse(item_id, warehouse_id);
+  async getItemById(
+    warehouse_id: number,
+    item_id: number
+  ): Promise<ItemResponse> {
+    const item = await this.itemRepository.findByIdAndWarehouse(
+      item_id,
+      warehouse_id
+    );
     if (!item) {
       return null;
     }
-    return ItemResponse.fromModel(item);
+    return ItemResponse.from(item);
   }
-
-
 }

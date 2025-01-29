@@ -6,7 +6,6 @@ import { StockRouter } from './routes/stockRouter';
 import { createDataSource } from './config/db';
 import { ItemRepository } from './repositories/itemRepository';
 import { ItemService } from './services/itemService';
-import { validationMiddleware } from './middleware/validationMiddleware';
 
 const app = express();
 

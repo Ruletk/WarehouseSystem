@@ -50,5 +50,5 @@ export class Item {
   deleted_at: Date;
 
   @Column({ name: 'extra_fields', type: 'json', nullable: true })
-  extra_fields: Record<string, any>;
+  extra_fields: Record<string, unknown>;
 }
