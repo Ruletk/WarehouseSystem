@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { ItemService } from '../services/itemService';
 import { CreateItemRequest, UpdateItemRequest } from '../dto/request';
-import { validationMiddleware } from '../middleware/validationMiddleware';
+import { validateRequest } from '@warehouse/validation';
 
 export class StockRouter {
   private itemService: ItemService;
@@ -17,7 +17,7 @@ export class StockRouter {
     // Создать новый товар
     router.post(
       '/warehouse/:warehouse_id',
-      validationMiddleware(CreateItemRequest), // Middleware для валидации входных данных
+      validateRequest(CreateItemRequest), // Middleware для валидации входных данных
       this.createStock
     );
 
@@ -27,7 +27,7 @@ export class StockRouter {
     // Обновить существующий товар
     router.put(
       '/warehouse/:warehouse_id/stock/:stock_id',
-      validationMiddleware(UpdateItemRequest), // Middleware для валидации входных данных
+      validateRequest(UpdateItemRequest), // Middleware для валидации входных данных
       this.updateStock
     );
 
@@ -37,7 +37,7 @@ export class StockRouter {
 
   getStocksByWarehouse = async (req: Request, res: Response) => {
     try {
-      const warehouse_id = req.params.warehouse_id;
+      const warehouse_id = parseInt(req.params.warehouse_id, 10);
       const items = await this.itemService.getItemsByWarehouse(warehouse_id);
       res.status(200).send(items);
     } catch (error) {
@@ -59,8 +59,8 @@ export class StockRouter {
 
   getStockById = async (req: Request, res: Response) => {
     try {
-      const warehouse_id = req.params.warehouse_id;
-      const item_id = req.params.stock_id;
+      const warehouse_id = parseInt(req.params.warehouse_id, 10);
+      const item_id = parseInt(req.params.stock_id, 10);
 
       const item = await this.itemService.getItemById(warehouse_id, item_id);
       res.status(200).send(item);
@@ -71,7 +71,7 @@ export class StockRouter {
 
   updateStock = async (req: Request, res: Response) => {
     try {
-      const item_id = req.params.stock_id;
+      const item_id = parseInt(req.params.stock_id, 10);
       const itemRequest = req.body; // Данные валидированы middleware
 
       const item = await this.itemService.updateItem(item_id, itemRequest);
@@ -83,7 +83,7 @@ export class StockRouter {
 
   deleteStock = async (req: Request, res: Response) => {
     try {
-      const item_id = req.params.stock_id;
+      const item_id = parseInt(req.params.stock_id, 10);
 
       const response = await this.itemService.deleteItem(item_id);
       res.status(200).send(response);
