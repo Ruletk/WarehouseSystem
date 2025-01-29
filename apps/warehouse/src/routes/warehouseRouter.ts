@@ -11,7 +11,7 @@ import {
 import {WarehouseService} from "../services/warehouseService";
 import {WarehouseTagService} from "../services/warehouseTagService";
 import {WarehouseUserService} from "../services/warehouseUserService"
-
+import {Warehouse} from "../models/warehouse";
 
 export class WarehouseAPI {
   // # Uncomment the following lines to enable dependency injection
@@ -74,253 +74,150 @@ export class WarehouseAPI {
   }
 
   private async getWarehousesHandler(req, res) {
-    const resp = await this.warehouseService.getAllWarehouses();
-    if ('code' in resp) return res.status(resp.code).send(resp);
-    res.status(200).send(resp);
+    const response = await this.warehouseService.getAllWarehouses();
+    handleResponse(res, response);
   }
 
   private async createWarehouseHandler(req, res) {
-    const resp = await this.warehouseService.createWarehouse(req.body);
-    if ('code' in resp) return res.status(resp.code).send(resp);
-    res.status(201).send(resp);
+    const response = await this.warehouseService.createWarehouse(req.body);
+    handleResponse(res, response, 201);
   }
 
   private async updateWarehouseHandler(req, res) {
-    const updateResponse = await this.warehouseService.updateWarehouseById({
+    const response = await this.warehouseService.updateWarehouseById({
       id: parseInt(req.params.id, 10),
       ...req.body,
     } as UpdateWarehouseRequest);
-    if ('code' in updateResponse)
-      return res.status(updateResponse.code).send(updateResponse);
-    res.status(200).send(updateResponse);
+    handleResponse(res, response);
   }
 
   private async deleteWarehouseHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid warehouse ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid warehouse ID.' });
 
-    const deleteResponse = await this.warehouseService.deleteWarehouseById(id);
-    if ('code' in deleteResponse) {
-      return res.status(deleteResponse.code).send(deleteResponse);
-    }
-
-    res.status(200).send({ message: 'Warehouse deleted successfully.' });
-
+    const response = await this.warehouseService.deleteWarehouseById(id);
+    handleResponse(res, response);
   }
 
   private async getWarehouseHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid warehouse ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid warehouse ID.' });
 
-    const warehouseResponse = await this.warehouseService.getWarehouseById(id);
-    if ('code' in warehouseResponse) {
-      return res.status(warehouseResponse.code).send(warehouseResponse);
-    }
-
-    res.status(200).send(warehouseResponse);
+    const response = await this.warehouseService.getWarehouseById(id);
+    handleResponse(res, response);
   }
 
   private async getTagsHandler(req, res) {
     try {
-      const tagsResponse = await this.warehouseTagService.getAllTags('');
-      if ('code' in tagsResponse) {
-        return res.status(tagsResponse.code).send(tagsResponse);
-      }
-      res.status(200).send(tagsResponse);
+      const response = await this.warehouseTagService.getAllTags();
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while fetching tags.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while fetching tags.', error: error.message });
     }
   }
 
   private async createTagHandler(req, res) {
     try {
-      const tagResponse = await this.warehouseTagService.createTag(
-        (req.body as CreateTagRequest).tag,
-        req.body as CreateTagRequest
-      );
-      if ('code' in tagResponse) {
-        return res.status(tagResponse.code).send(tagResponse);
-      }
-      res.status(201).send(tagResponse);
+      const response = await this.warehouseTagService.createTag(req.body.tag, req.body as CreateTagRequest);
+      handleResponse(res, response, 201);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while creating the tag.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while creating the tag.', error: error.message });
     }
   }
 
   private async updateTagHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid tag ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid tag ID.' });
 
     try {
-      const updateResponse = await this.warehouseTagService.updateTagById(
-        id,
-        req.body as UpdateTagRequest
-      );
-
-      if ('code' in updateResponse) {
-        return res.status(updateResponse.code).send(updateResponse);
-      }
-
-      res.status(200).send(updateResponse);
+      const response = await this.warehouseTagService.updateTagById(req.body);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while updating the tag.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while updating the tag.', error: error.message });
     }
   }
 
   private async deleteTagHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid tag ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid tag ID.' });
 
     try {
-      const deleteResponse = await this.warehouseTagService.deleteTagById(id);
-
-      if ('code' in deleteResponse) {
-        return res.status(deleteResponse.code).send(deleteResponse);
-      }
-
-      res.status(200).send({ message: 'Tag deleted successfully.' });
+      const response = await this.warehouseTagService.deleteTagById(id);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while deleting the tag.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while deleting the tag.', error: error.message });
     }
   }
 
   private async getRolesHandler(req, res) {
     try {
-      const rolesResponse = await this.warehouseUserService.getAllRoles();
-      if ('code' in rolesResponse) {
-        return res.status(rolesResponse.code).send(rolesResponse);
-      }
-      res.status(200).send(rolesResponse);
+      const response = await this.warehouseUserService.getAllRoles();
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while fetching roles.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while fetching roles.', error: error.message });
     }
   }
 
   private async createRoleHandler(req, res) {
     try {
-      const roleResponse = await this.warehouseUserService.createRoleById(
-        0,
-        req.body as CreateRoleRequest
-      );
-      if ('code' in roleResponse) {
-        return res.status(roleResponse.code).send(roleResponse);
-      }
-      res.status(201).send(roleResponse);
+      const warehouse = new Warehouse();
+      const response = await this.warehouseUserService.createRole(parseInt(req.params.id, 10), req.body, warehouse);
+      handleResponse(res, response, 201);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while creating the role.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while creating the role.', error: error.message });
     }
   }
 
   private async updateRoleHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid role ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid role ID.' });
 
     try {
-      const updateResponse = await this.warehouseUserService.updateRoleById(
-        id,
-        req.body as UpdateRoleRequest
-      );
-      if ('code' in updateResponse) {
-        return res.status(updateResponse.code).send(updateResponse);
-      }
-      res.status(200).send(updateResponse);
+      const response = await this.warehouseUserService.updateRoleById(req.body);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while updating the role.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while updating the role.', error: error.message });
     }
   }
 
   private async deleteRoleHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid role ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid role ID.' });
 
     try {
-      const deleteResponse = await this.warehouseUserService.deleteRoleById(id);
-      if ('code' in deleteResponse) {
-        return res.status(deleteResponse.code).send(deleteResponse);
-      }
-      res.status(200).send({ message: 'Role deleted successfully.' });
+      const response = await this.warehouseTagService.deleteRoleById(id);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while deleting the role.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while deleting the role.', error: error.message });
     }
   }
 
   private async assignUserRoleHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid role ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid role ID.' });
 
     try {
-      const assignResponse = await this.warehouseUserService.assignUserRole(
-        id,
-        req.body as AssignUserRoleRequest
-      );
-      if ('code' in assignResponse) {
-        return res.status(assignResponse.code).send(assignResponse);
-      }
-      res.status(200).send(assignResponse);
+      const warehouse = new Warehouse();
+      const response = await this.warehouseUserService.assignUserRole(req.body as AssignUserRoleRequest, warehouse);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while assigning the user to the role.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while assigning the user to the role.', error: error.message });
     }
   }
 
   private async removeUserRoleHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send({ message: 'Invalid role ID.' });
-    }
+    if (isNaN(id)) return res.status(400).send({ message: 'Invalid role ID.' });
 
     try {
-      const removeResponse = await this.warehouseUserService.removeUserRole(id);
-      if ('code' in removeResponse) {
-        return res.status(removeResponse.code).send(removeResponse);
-      }
-      res.status(200).send(removeResponse);
+      const response = await this.warehouseUserService.removeUserRole(req.body as RemoveUserRoleRequest);
+      handleResponse(res, response);
     } catch (error) {
-      res.status(500).send({
-        message: 'An error occurred while removing the user from the role.',
-        error: error.message,
-      });
+      res.status(500).send({ message: 'An error occurred while removing the user from the role.', error: error.message });
     }
   }
 }
+const handleResponse = (res, response, successStatus = 200) => {
+  if ('code' in response) return res.status(response.code).send(response);
+  res.status(successStatus).send(response);
+};
