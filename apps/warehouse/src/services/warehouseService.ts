@@ -3,7 +3,7 @@ import {
   AssignUserRoleRequest,
   CreateRoleRequest,
   CreateTagRequest,
-  CreateWarehouseRequest,
+  CreateWarehouseRequest, RemoveUserRoleRequest,
   UpdateRoleRequest,
   UpdateTagRequest,
   UpdateWarehouseRequest,
@@ -17,12 +17,20 @@ import {
   WarehouseTagResponse, WarehouseUserRoleResponse,
 } from '../dto/response';
 import { ApiResponse } from '@warehouse/validation';
+import {WarehouseTagRepository} from "../repositories/warehouseTagRepository";
+import {WarehouseUserRepository} from "../repositories/warehouseUserRepository";
+import {Warehouse} from "../models/warehouse";
+import { validateOrReject } from 'class-validator';
 
 export class WarehouseService {
   private warehouseRepository: WarehouseRepository;
+  private warehouseTagRepository: WarehouseTagRepository;
+  private warehouseUserRepository: WarehouseUserRepository;
 
-  constructor(warehouseRepository: WarehouseRepository) {
+  constructor(warehouseRepository: WarehouseRepository, warehouseTagRepository: WarehouseTagRepository, warehouseUserRepository: WarehouseUserRepository) {
     this.warehouseRepository = warehouseRepository;
+    this.warehouseTagRepository = warehouseTagRepository;
+    this.warehouseUserRepository = warehouseUserRepository;
   }
 
   public async createWarehouse(
@@ -198,12 +206,10 @@ export class WarehouseService {
     }
   }
 
-  public async getAllTags(
-    tag: string
-  ): Promise<WarehouseTagListResponse | ApiResponse> {
+  public async getAllTags(): Promise<WarehouseTagListResponse | ApiResponse> {
     try {
       // Find warehouses by tags using the repository
-      const warehouses = await this.warehouseRepository.findByTagName(tag);
+      const warehouses = await this.warehouseTagRepository.findAll();
       if (!warehouses || warehouses.length === 0) {
         return ApiResponse.from({
           message: 'No warehouses found for the provided tags.',
@@ -213,8 +219,8 @@ export class WarehouseService {
       // Transform the data into WarehouseResponse format
       const warehouseTagResponses = warehouses.map((warehouse) =>
         WarehouseTagResponse.from({
-          tagId: warehouse.id,
-          tag: warehouse.name,
+          tagId: warehouse.tagId,
+          tag: warehouse.tag,
           createdAt: warehouse.createdAt,
           updatedAt: warehouse.updatedAt,
         })
@@ -233,12 +239,15 @@ export class WarehouseService {
   }
 
   public async createTag(
-    tag: string,
+    warehouseId: Warehouse,
     req: CreateTagRequest
   ): Promise<WarehouseTagResponse | ApiResponse> {
     try {
       // Create the warehouse using repository
-      const warehouse = await this.warehouseRepository.createTag(req.tag);
+      const warehouse = await this.warehouseTagRepository.create(
+        req.tag,
+        warehouseId
+      );
 
       if (!warehouse) {
         return ApiResponse.from({
@@ -248,7 +257,10 @@ export class WarehouseService {
 
       // Transform the created warehouse into WarehouseResponse format
       return WarehouseTagResponse.from({
-        tag,
+        tagId: warehouse.tagId,
+        tag: req.tag,
+        createdAt: warehouse.createdAt,
+        updatedAt: warehouse.updatedAt
       });
     } catch (error) {
       console.error('Error creating warehouse with tag:', error);
@@ -260,29 +272,30 @@ export class WarehouseService {
   }
 
   public async updateTagById(
-    id: number,
     req: UpdateTagRequest
   ): Promise<WarehouseTagResponse | ApiResponse> {
     try {
       // Find existing tag by its ID using the repository
-      const existingTag = await this.warehouseRepository.findById(id);
+      const existingTag = await this.warehouseTagRepository.findById(req.id);
 
       if (!existingTag) {
         return ApiResponse.from({
-          message: `Tag with id ${id} not found`,
+          message: `Tag with id ${req.id} not found`,
         });
       }
 
       // Update the tag data using the repository
-      await this.warehouseRepository.update({
-        id: id,
-        name: req.tag,
+      await this.warehouseTagRepository.update({
+        tagId: req.id,
+        tag: existingTag.tag,
+        createdAt: existingTag.createdAt,
+        updatedAt: existingTag.updatedAt,
       });
 
       // Transform the updated tag into the response format
       return WarehouseTagResponse.from({
-        tagId: id,
-        tag: existingTag.name,
+        tagId: req.id,
+        tag: existingTag.tag,
         createdAt: existingTag.createdAt,
         updatedAt: existingTag.updatedAt,
       });
@@ -298,7 +311,7 @@ export class WarehouseService {
   public async deleteTagById(id: number): Promise<ApiResponse> {
     try {
       // Find the tag by its ID using the repository
-      const existingTag = await this.warehouseRepository.findById(id);
+      const existingTag = await this.warehouseTagRepository.findById(id);
 
       if (!existingTag) {
         return ApiResponse.from({
@@ -307,7 +320,7 @@ export class WarehouseService {
       }
 
       // Soft delete the tag using the repository
-      await this.warehouseRepository.softDelete(id);
+      await this.warehouseTagRepository.softDelete(id);
 
       // Return a successful response
       return ApiResponse.from({
@@ -325,26 +338,26 @@ export class WarehouseService {
 
   public async getAllRoles(): Promise<WarehouseRoleListResponse | ApiResponse> {
     try {
-      // Fetch all roles from the repository
-      const roles = await this.warehouseRepository.findAll();
+      // Fetch all users from the repository
+      const users = await this.warehouseUserRepository.findAll();
 
-      if (!roles || roles.length === 0) {
+      if (!users || users.length === 0) {
         return ApiResponse.from({
-          message: 'No roles found',
+          message: 'No users found',
         });
       }
 
-      // Transform the roles into RoleResponse format
-      const roleResponses = roles.map((role) =>
+      // Transform the users into RoleResponse format
+      const userResponses = users.map((user) =>
         WarehouseRoleResponse.from({
-          id: role.id,
-          role: role.name,
-          createdAt: role.createdAt,
-          updatedAt: role.updatedAt,
+          id: user.id,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
         })
       );
-      // Return the roles in a RoleListResponse format
-      return WarehouseRoleListResponse.from({ roles: roleResponses });
+      // Return the users in a RoleListResponse format
+      return WarehouseRoleListResponse.from({ roles: userResponses });
     } catch (error) {
       console.error('Error fetching roles:', error);
       return ApiResponse.from({
@@ -354,22 +367,15 @@ export class WarehouseService {
     }
   }
 
-  public async createRoleById(
+  public async createRole(
     id: number,
-    req: CreateRoleRequest
+    req: CreateRoleRequest,
+    warehouseId: Warehouse
   ): Promise<WarehouseRoleResponse | ApiResponse> {
     try {
-      // Check if the role already exists by its ID
-      const existingRole = await this.warehouseRepository.findById(id);
-
-      if (existingRole) {
-        return ApiResponse.from({
-          message: 'Role with id ${id} already exists',
-        });
-      }
-
       // Create the new role using the repository
-      const createdRole = await this.warehouseRepository.createRole(
+      const createdRole = await this.warehouseUserRepository.create(
+        warehouseId,
         id,
         req.role
       );
@@ -397,149 +403,144 @@ export class WarehouseService {
   }
 
   public async updateRoleById(
-    id: number,
     req: UpdateRoleRequest
   ): Promise<WarehouseRoleResponse | ApiResponse> {
     try {
-      // Find the existing role by its ID using the repository
-      const existingRole = await this.warehouseRepository.findById(id);
+      // Validate request object
+      await validateOrReject(req);
 
-      if (!existingRole) {
+      // Find the existing WarehouseUser by ID
+      const existingUser = await this.warehouseUserRepository.findAll();
+      const user = existingUser.find((user) => user.id === req.id);
+
+      if (!user) {
         return ApiResponse.from({
           code: 404,
-          message: 'Role with id ${id} not found',
+          type: 'Not Found',
+          message: `WarehouseUser with ID ${req.id} not found`,
         });
       }
 
-      // Update the role data using the repository
-      await this.warehouseRepository.update({
-        id: id,
-        name: req.role,
-      });
+      // Update the role
+      user.role = req.role;
+      await this.warehouseUserRepository.update(user);
 
-      // Fetch the updated role data
-      const updatedRole = await this.warehouseRepository.findById(id);
-
-      if (!updatedRole) {
-        return ApiResponse.from({
-          code: 500,
-          message: 'Failed to retrieve updated role with id ${id}',
-        });
-      }
-
-      // Transform the updated role into the response format
       return WarehouseRoleResponse.from({
-        id: updatedRole.id,
-        role: updatedRole.name,
-        createdAt: updatedRole.createdAt,
-        updatedAt: updatedRole.updatedAt,
+        id: user.id,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: new Date(),
       });
     } catch (error) {
-      console.error('Error updating role:', error);
       return ApiResponse.from({
-        code: 500,
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        code: 400,
+        type: 'Bad Request',
+        message: `Validation or Update Error: ${error}`,
       });
-    }
+      }
   }
 
   public async deleteRoleById(id: number): Promise<ApiResponse> {
     try {
-      // Find the role by its ID using the repository
-      const existingRole = await this.warehouseRepository.findById(id);
+      // Find the existing WarehouseUser by ID
+      const existingUser = await this.warehouseUserRepository.findAll();
+      const user = existingUser.find((user) => user.id === id);
 
-      if (!existingRole) {
+      if (!user) {
         return ApiResponse.from({
-          message: 'Role with id ${id} not found',
+          code: 404,
+          type: 'Not Found',
+          message: `WarehouseUser with ID ${id} not found`,
         });
       }
 
-      // Soft delete the role using the repository
-      await this.warehouseRepository.softDelete(id);
+      // Soft delete the user by updating the deletedAt field
+      await this.warehouseUserRepository.softDelete(id);
 
-      // Return a successful response
       return ApiResponse.from({
-        message: 'Role deleted successfully',
+        code: 200,
+        type: 'Success',
+        message: `WarehouseUser with ID ${id} successfully deleted`,
       });
     } catch (error) {
-      console.error('Error deleting role by id:', error);
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        code: 500,
+        type: 'Internal Server Error',
+        message: `Error deleting WarehouseUser with ID ${id}: ${error}`,
       });
     }
   }
 
   public async assignUserRole(
-    userId: number,
-    req: AssignUserRoleRequest
+    req: AssignUserRoleRequest,
+    warehouseId: Warehouse
   ): Promise<WarehouseUserRoleResponse | ApiResponse> {
     try {
-      // Verify the existence of the user
-      const user = await this.warehouseRepository.findById(userId);
+      // Validate request object
+      await validateOrReject(req);
 
-      if (!user) {
+      // Check if the user already has a role in the warehouse
+      const existingUsers = await this.warehouseUserRepository.findUsersByWarehouse(warehouseId);
+      if (existingUsers.includes(req.userId)) {
         return ApiResponse.from({
-          code: 404,
-          message: "User with id ${userId} not found",
+          code: 400,
+          type: 'Bad Request',
+          message: `User with ID ${req.userId} already has a role in the specified warehouse`,
         });
-      }// Assign the role to the user
-      const newRole = await this.warehouseRepository.createRole(
-        userId,
+      }
+
+      // Assign the role to the user
+      const newUserRole = await this.warehouseUserRepository.create(
+        warehouseId,
+        req.userId,
         req.role
       );
-
-      // Transform the assigned role into the response format
       return WarehouseUserRoleResponse.from({
-        userId: userId,
-        role: newRole.role,
-        assignedAt: newRole.createdAt,
+        userId: newUserRole.id,
+        role: newUserRole.role,
+        assignedAt: newUserRole.createdAt,
       });
     } catch (error) {
-      console.error('Error assigning role to user:', error);
       return ApiResponse.from({
         code: 500,
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        type: 'Internal Server Error',
+        message: `Error assigning role to user: ${error}`,
       });
     }
   }
 
-  public async removeUserRole(userId: number): Promise<ApiResponse> {
+  public async removeUserRole(req: RemoveUserRoleRequest): Promise<ApiResponse> {
     try {
-      // Fetch the user by userId to verify existence
-      const user = await this.warehouseRepository.findById(userId);
+      // Validate request object
+      await validateOrReject(req);
 
-      if (!user) {
+      // Find the user-role association in the warehouse
+      const usersWithRole = await this.warehouseUserRepository.findUsersByRoleAndWarehouse(
+        req.role,
+        { id: req.userId } as Warehouse
+      );
+
+      if (usersWithRole.length === 0) {
         return ApiResponse.from({
-          message: "User with id ${userId} not found",
+          code: 404,
+          type: 'Not Found',
+          message: `User with ID ${req.userId} and role ${req.role} not found in the specified warehouse`,
         });
       }
 
-      // Find roles associated with the user
-      const userRoles = await this.warehouseRepository.findWarehousesByUserId(
-        userId
-      );
+      // Perform soft delete of the user role
+      await this.warehouseUserRepository.softDelete(req.userId);
 
-      if (!userRoles || userRoles.length === 0) {
-        return ApiResponse.from({
-          message: "No role associated with user id ${userId}",
+      return ApiResponse.from({
+        code: 200,
+        type: 'Success',
+        message: `Role ${req.role} successfully removed from user with ID ${req.userId}`,
       });
-      }
-
-      // Delete the roles associated with the user using the repository
-      await this.warehouseRepository.softDelete(userId);
-
-      // Return a successful response
-      return ApiResponse.from({
-        message: "Roles associated with user id ${userId} deleted successfully",
-    });
     } catch (error) {
-      console.error('Error deleting roles by user id:', error);
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        code: 500,
+        type: 'Internal Server Error',
+        message: `Error removing role from user: ${error}`,
       });
     }
   }

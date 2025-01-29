@@ -28,22 +28,6 @@ export class WarehouseRepository {
     return await this.repository.save(warehouse);
   }
 
-  async createTag(tag: string): Promise<WarehouseTag> {
-    const newTag = this.appDataSource.getRepository(WarehouseTag).create({
-      tag,
-    });
-
-    return this.appDataSource.getRepository(WarehouseTag).save(newTag);
-  }
-
-  async createRole(id: number, name: string): Promise<WarehouseUser> {
-    const newRole = this.appDataSource.getRepository(WarehouseUser).create({
-      id: id,
-      role: name,
-    });
-    return this.appDataSource.getRepository(WarehouseUser).save(newRole);
-  }
-
   async update(updateData: Partial<Warehouse>): Promise<void> {
     await this.repository.update(updateData.id, updateData);
   }
