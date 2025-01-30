@@ -40,7 +40,7 @@ stockRouter.registerRoutes(stockExpressRouter);
 app.use('/health', healthRouter);
 
 // Add stock router with validation middleware
-app.use('/stocks', stockExpressRouter);
+app.use('/', stockExpressRouter);
 
 // Start the server
 const port = process.env.PORT || 3333;
