@@ -22,6 +22,7 @@ export function App() {
         </ul>
       </div>
       <Routes>
+        <Route path="/" element={<div>Welcome frontend</div>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
