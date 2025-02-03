@@ -1,16 +1,15 @@
-import { StrictMode } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import * as ReactDOM from 'react-dom/client';
 import App from './app/app';
+import './styles/global.css'; // Подключение глобальных стилей
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
 root.render(
-  <StrictMode>
+  <React.StrictMode>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </StrictMode>
+  </React.StrictMode>
 );
