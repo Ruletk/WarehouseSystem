@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { authApi } from '../../services/api';
-import styles from './LoginForm.module.css';
+import { register } from '../../services/api';
 
-const RegisterForm: React.FC = () => {
+const RegisterForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,24 +9,23 @@ const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await authApi.register({ email, password });
-      window.location.href = '/login'; // Перенаправление на страницу входа
+      await register(email, password);
+      alert('Registration successful! Check your email to activate your account.');
     } catch (err) {
       setError('User already exists');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <h2 className={styles.title}>Register</h2>
-      {error && <p className={styles.error}>{error}</p>}
+    <form onSubmit={handleSubmit}>
+      <h2>Register</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className={styles.input}
       />
       <input
         type="password"
@@ -35,11 +33,8 @@ const RegisterForm: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className={styles.input}
       />
-      <button type="submit" className={styles.button}>
-        Register
-      </button>
+      <button type="submit">Register</button>
     </form>
   );
 };

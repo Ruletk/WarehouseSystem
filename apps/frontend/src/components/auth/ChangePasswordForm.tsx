@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import { authApi } from '../../services/api';
+import { changePassword } from '../../services/api';
 
-interface ChangePasswordFormProps {
-  token: string;
-}
-
-const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ token }) => {
+const ChangePasswordForm = ({ token }: { token: string }) => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await authApi.changePassword(token, password);
-      setMessage('Password changed successfully');
+      await changePassword(token, password);
+      setMessage('Password changed successfully!');
     } catch (err) {
       setMessage('Failed to change password');
     }

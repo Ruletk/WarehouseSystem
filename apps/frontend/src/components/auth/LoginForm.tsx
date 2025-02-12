@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { authApi } from '../../services/api';
-import styles from './LoginForm.module.css';
-
-const LoginForm: React.FC = () => {
+import { login } from '../../services/api';
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,24 +8,23 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await authApi.login({ email, password });
-      window.location.href = '/'; // Перенаправление после успешного входа
+      await login(email, password);
+      alert('Login successful!');
     } catch (err) {
       setError('Invalid email or password');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <h2 className={styles.title}>Login</h2>
-      {error && <p className={styles.error}>{error}</p>}
+    <form onSubmit={handleSubmit}>
+      <h2>Login</h2>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className={styles.input}
       />
       <input
         type="password"
@@ -35,11 +32,8 @@ const LoginForm: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        className={styles.input}
       />
-      <button type="submit" className={styles.button}>
-        Login
-      </button>
+      <button type="submit">Login</button>
     </form>
   );
 };

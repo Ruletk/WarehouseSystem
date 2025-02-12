@@ -1,18 +1,26 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import ActivateAccount from '../../components/auth/ActivateAccount';
+import React, { useEffect, useState } from 'react';
+import { activateAccount } from '../../services/api';
 
-const ActivateAccountPage: React.FC = () => {
-  const { token } = useParams<{ token: string }>();
+const ActivateAccountPage = () => {
+  const [message, setMessage] = useState('');
+  const token = new URLSearchParams(window.location.search).get('token') || '';
 
-  if (!token) {
-    return <div>Invalid token</div>;
-  }
+  useEffect(() => {
+    const activate = async () => {
+      try {
+        await activateAccount(token);
+        setMessage('Account activated successfully!');
+      } catch (err) {
+        setMessage('Failed to activate account');
+      }
+    };
+    activate();
+  }, [token]);
 
   return (
     <div>
-      <h1>Activate Account Page</h1>
-      <ActivateAccount token={token} />
+      <h1>Activate Account</h1>
+      <p>{message}</p>
     </div>
   );
 };
