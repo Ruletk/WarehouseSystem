@@ -1,13 +1,8 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import ChangePasswordForm from '../../components/auth/ChangePasswordForm';
 
-const ChangePasswordPage: React.FC = () => {
-  const { token } = useParams<{ token: string }>();
-
-  if (!token) {
-    return <div>Invalid token</div>;
-  }
+const ChangePasswordPage = () => {
+  const token = new URLSearchParams(window.location.search).get('token') || '';
 
   return (
     <div>

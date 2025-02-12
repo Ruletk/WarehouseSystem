@@ -1,40 +1,32 @@
 import React, { useState } from 'react';
-import { authApi } from '../../services/api';
-import styles from './ResetPasswordForm.module.css';
+import { resetPassword } from '../../services/api';
 
-const ResetPasswordForm: React.FC = () => {
+const ResetPasswordForm = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await authApi.resetPassword(email);
-      setMessage('Password reset email sent');
+      await resetPassword(email);
+      setMessage('Password reset email sent!');
     } catch (err) {
-      setMessage('Invalid request');
+      setMessage('Failed to send reset email');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <h2 className={styles.title}>Reset Password</h2>
-      {message && (
-        <p className={`${styles.message} ${message.includes('sent') ? styles.success : styles.error}`}>
-          {message}
-        </p>
-      )}
+    <form onSubmit={handleSubmit}>
+      <h2>Reset Password</h2>
+      {message && <p>{message}</p>}
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className={styles.input}
       />
-      <button type="submit" className={styles.button}>
-        Reset Password
-      </button>
+      <button type="submit">Reset Password</button>
     </form>
   );
 };
