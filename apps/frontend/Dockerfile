@@ -9,7 +9,8 @@ RUN npm ci
 
 COPY . .
 
-RUN npx nx build frontend
+
+RUN npx nx build frontend --configuration=production
 
 # Stage 2: Serve the React app with nginx
 FROM nginx:1.27.3

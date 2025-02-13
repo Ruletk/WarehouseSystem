@@ -22,6 +22,7 @@ export class WarehouseRepository {
       longitude,
       address,
     });
+
     return await this.repository.save(warehouse);
   }
 

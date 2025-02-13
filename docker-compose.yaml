@@ -30,7 +30,7 @@ services:
     image: nginx:1.27.3
     container_name: backend-server
     environment:
-      - TZ=Asia/Aqtobe
+      TZ: Asia/Aqtobe
     networks:
       - internal
     volumes:
@@ -57,7 +57,7 @@ services:
       dockerfile: ./apps/frontend/Dockerfile
     container_name: frontend-server
     environment:
-      - TZ=Asia/Aqtobe
+      TZ: Asia/Aqtobe
     networks:
       - internal # For internal communication, redirecting requests to backend
     volumes:
@@ -75,6 +75,7 @@ services:
       dockerfile: ./apps/auth/Dockerfile
     container_name: auth
     environment:
+      TZ: Asia/Aqtobe
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
@@ -98,7 +99,7 @@ services:
       dockerfile: ./apps/stock/Dockerfile
     container_name: stock
     environment:
-      - TZ=Asia/Aqtobe
+      TZ: Asia/Aqtobe
     networks:
       - internal
     depends_on:
@@ -116,6 +117,13 @@ services:
       context: .
       dockerfile: ./apps/warehouse/Dockerfile
     container_name: warehouse
+    environment:
+      TZ: Asia/Aqtobe
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: db
     networks:
       - internal
     depends_on:

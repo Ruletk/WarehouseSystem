@@ -1,17 +1,55 @@
-export class ItemRequest {
-  constructor(data = null) {
-    this.name = data?.name;
-    this.description = data?.description;
-    this.quantity = data?.quantity;
-    this.unit_price = data?.unit_price;
-    this.unit_ammount = data?.unit_ammount;
-    this.warehouse_id = data?.warehouse_id;
-  }
+import { IsString, IsNotEmpty, IsNumber, Min, IsOptional } from 'class-validator';
 
-  name: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  unit_ammount: number;
+export class CreateItemRequest {
+  @IsNumber()
+  @IsNotEmpty()
   warehouse_id: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  quantity: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  unit_price: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  unit_ammount: number;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
+
+export class UpdateItemRequest {
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  quantity?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  unit_price?: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  unit_ammount?: number;
+
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }

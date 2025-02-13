@@ -38,6 +38,8 @@ stockRouter.registerRoutes(stockExpressRouter);
 
 // Register API paths
 app.use('/health', healthRouter);
+
+// Add stock router with validation middleware
 app.use('/', stockExpressRouter);
 
 // Start the server
