@@ -21,6 +21,7 @@ services:
       interval: 1s
       timeout: 1s
       retries: 30
+<<<<<<< HEAD
 
   rabbitmq:
     image: rabbitmq:4.0.5-management
@@ -42,6 +43,8 @@ services:
     volumes:
       - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - rabbitmq_data:/var/lib/rabbitmq
+=======
+>>>>>>> 63818c9 (feat(frontend): Added Dockerfile for frontend deploy)
 
   backend:
   # Backend will be running on nginx
@@ -69,11 +72,18 @@ services:
       retries: 100
 
   frontend:
+<<<<<<< HEAD
   # Frontend will be running on nginx
   # Internal exposed port is 80
   # External exposed port is 80
   ### For development branch it temporarily uses the same image as backend
   ### But later it will be changed to the frontend image (react + nginx)
+=======
+    # Frontend will be running on nginx
+    # Internal exposed port is 80
+    # External exposed port is 80
+    image: frontend
+>>>>>>> 63818c9 (feat(frontend): Added Dockerfile for frontend deploy)
     build:
       context: .
       dockerfile: ./apps/frontend/Dockerfile
@@ -86,11 +96,11 @@ services:
       - ./services/frontend/nginx.conf:/etc/nginx/nginx.conf
       - ./services/frontend/nginx.default.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "80:80"
+      - "8089:80"
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "systemctl", "status", "nginx"]
+      test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 1s
       timeout: 1s
       retries: 100
