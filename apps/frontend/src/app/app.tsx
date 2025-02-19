@@ -1,11 +1,16 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import RegisterPage from '../pages/auth/RegisterPage';
 
-const App: React.FC = () => {
+const App = () => {
   return (
-    <div>
-      <RegisterPage />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/register" />} />
+
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </Router>
   );
 };
 

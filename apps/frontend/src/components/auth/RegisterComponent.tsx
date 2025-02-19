@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styles from './RegisterComponent.module.css';
 
 interface RegisterComponentProps {
   onRegister: (data: { email: string; password: string }) => Promise<void>;
@@ -14,6 +15,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     try {
       await onRegister({ email, password });
     } catch (err: any) {
@@ -24,10 +26,11 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className={styles.form} onSubmit={handleSubmit}>
       <div>
         <label>Email:</label>
         <input
+          className={styles.input}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -37,6 +40,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
       <div>
         <label>Password:</label>
         <input
+          className={styles.input}
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -44,7 +48,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
         />
       </div>
       {error && <div style={{ color: 'red' }}>{error}</div>}
-      <button type="submit" disabled={loading}>
+      <button className={styles.button} type="submit" disabled={loading}>
         {loading ? 'Registering...' : 'Register'}
       </button>
     </form>
