@@ -70,13 +70,13 @@ class AuthService {
   // Активация аккаунта
   async activateAccount(token: string): Promise<any> {
     try {
-      const response = await axios.get(`${API_URL}/activate/${token}`);
+      const response = await axios.get(`${API_URL}/user/verify/${token}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       }
-      throw new Error('Account activation failed');
+      throw new Error('Unable to activate account');
     }
   }
 }
