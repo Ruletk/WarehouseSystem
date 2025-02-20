@@ -1,6 +1,8 @@
 import { DataSource, Repository } from 'typeorm';
 import { Auth } from '../models/auth';
-import { logger } from '../../logger';
+import { getLogger } from '@warehouse/logging';
+
+const logger = getLogger('authRepository');
 
 export class AuthRepository {
   private dataSource: DataSource;
@@ -21,10 +23,10 @@ export class AuthRepository {
    * @param password_hash - The hashed password of the user.
    * @returns A promise that resolves to the created Auth entity.
    */
-
   async create(email: string, password_hash: string): Promise<Auth> {
+    logger.debug('Creating new auth record', { email });
+
     const now = new Date();
-    logger.info(`Creating user ${email} at time ${now.toISOString()}`);
     const auth = this.authRepository.create({
       email,
       password_hash,
@@ -32,10 +34,13 @@ export class AuthRepository {
       created_at: now,
       updated_at: now,
     });
+
     const savedAuth = await this.authRepository.save(auth);
-    logger.debug(
-      `Returning newly created user with id: ${savedAuth.id}, email: ${savedAuth.email}`
-    );
+    logger.info('Auth record created successfully', {
+      userId: savedAuth.id,
+      email: savedAuth.email
+    });
+
     return savedAuth;
   }
 
@@ -45,15 +50,15 @@ export class AuthRepository {
    * @param email - The email address to search for.
    * @returns A promise that resolves to the authentication record if found, otherwise undefined.
    */
-
   async findByEmail(email: string): Promise<Auth | undefined> {
-    logger.info(`Retrieving user with email: ${email}`);
+    logger.debug('Looking up auth record by email', { email });
+
     const foundUser = await this.authRepository.findOne({ where: { email } });
-    logger.debug(
-      `Returning user found by email ${email}: ${
-        foundUser ? 'found' : 'not found'
-      }`
-    );
+    logger.info('Auth lookup by email completed', {
+      email,
+      found: !!foundUser
+    });
+
     return foundUser;
   }
 
@@ -63,13 +68,15 @@ export class AuthRepository {
    * @param id - The ID of the authentication record to find.
    * @returns A promise that resolves to the authentication record if found, or undefined if not found.
    */
-
   async findById(id: number): Promise<Auth | undefined> {
-    logger.info(`Retrieving user by ID: ${id}`);
+    logger.debug('Looking up auth record by ID', { userId: id });
+
     const foundUser = await this.authRepository.findOne({ where: { id } });
-    logger.debug(
-      `Returning user found by ID ${id}: ${foundUser ? 'found' : 'not found'}`
-    );
+    logger.info('Auth lookup by ID completed', {
+      userId: id,
+      found: !!foundUser
+    });
+
     return foundUser;
   }
 
@@ -80,56 +87,66 @@ export class AuthRepository {
    * @param password_hash - The new password hash to be set.
    * @returns A promise that resolves to a boolean indicating whether the update was successful.
    */
-
   async updatePassword(id: number, password_hash: string): Promise<boolean> {
-    logger.info(`Updating password for user with ID: ${id}`);
+    logger.debug('Updating password hash', { userId: id });
+
     const updateRes = await this.authRepository.update(id, {
       password_hash,
       updated_at: new Date(),
     });
+
     const success = updateRes.affected === 1;
-    logger.debug(
-      `Returning result of updatePassword for ID ${id}: ${
-        success ? 'success' : 'failed'
-      }`
-    );
+    logger.info('Password update completed', {
+      userId: id,
+      success
+    });
+
     return success;
   }
 
   /**
-   * Activates a user account by setting the `is_active` flag to true and updating the `updated_at` timestamp.
+   * Activates a user account by setting the `is_active` flag to true.
    *
    * @param id - The unique identifier of the user account to activate.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully activated.
    */
-
   async activateAccount(id: number): Promise<boolean> {
-    logger.info(`Activating account with ID: ${id}`);
+    logger.debug('Activating account', { userId: id });
+
     const updateRes = await this.authRepository.update(id, {
       is_active: true,
       updated_at: new Date(),
     });
+
     const success = updateRes.affected === 1;
-    logger.debug(
-      `Returning result of activateAccount for ID ${id}: ${
-        success ? 'success' : 'failed'
-      }`
-    );
+    logger.info('Account activation completed', {
+      userId: id,
+      success
+    });
+
     return success;
   }
 
+  /**
+   * Deactivates a user account by setting the `is_active` flag to false.
+   *
+   * @param id - The unique identifier of the user account to deactivate.
+   * @returns A promise that resolves to a boolean indicating whether the account was successfully deactivated.
+   */
   async deactivateAccount(id: number): Promise<boolean> {
-    logger.info(`Deactivating account with ID: ${id}`);
+    logger.debug('Deactivating account', { userId: id });
+
     const updateRes = await this.authRepository.update(id, {
       is_active: false,
       updated_at: new Date(),
     });
+
     const success = updateRes.affected === 1;
-    logger.debug(
-      `Returning result of deactivateAccount for ID ${id}: ${
-        success ? 'success' : 'failed'
-      }`
-    );
+    logger.info('Account deactivation completed', {
+      userId: id,
+      success
+    });
+
     return success;
   }
 
@@ -139,18 +156,19 @@ export class AuthRepository {
    * @param id - The unique identifier of the account to be deleted.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully marked as deleted.
    */
-
   async deleteAccount(id: number): Promise<boolean> {
-    logger.info(`Marking account as deleted with ID: ${id}`);
+    logger.warn('Soft deleting account', { userId: id });
+
     const updateRes = await this.authRepository.update(id, {
       deleted_at: new Date(),
     });
+
     const success = updateRes.affected === 1;
-    logger.debug(
-      `Returning result of deleteAccount for ID ${id}: ${
-        success ? 'success' : 'failed'
-      }`
-    );
+    logger.info('Account soft deletion completed', {
+      userId: id,
+      success
+    });
+
     return success;
   }
 
@@ -160,16 +178,17 @@ export class AuthRepository {
    * @param id - The unique identifier of the account to be deleted.
    * @returns A promise that resolves to a boolean indicating whether the account was successfully deleted.
    */
-
   async hardDeleteAccount(id: number): Promise<boolean> {
-    logger.info(`Hard deleting account with ID: ${id}`);
+    logger.warn('Permanently deleting account', { userId: id });
+
     const deleteRes = await this.authRepository.delete(id);
+
     const success = deleteRes.affected === 1;
-    logger.debug(
-      `Returning result of hardDeleteAccount for ID ${id}: ${
-        success ? 'success' : 'failed'
-      }`
-    );
+    logger.info('Account permanent deletion completed', {
+      userId: id,
+      success
+    });
+
     return success;
   }
 }
