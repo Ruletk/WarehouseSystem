@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthService from '../../services/AuthService';
-import styles from './ResetPasswordComponent.module.css';
+import commonStyles from './commonStyles.module.css';
 
 interface ResetPasswordComponentProps {
   onSuccess: () => void;
@@ -30,22 +30,21 @@ const ResetPasswordComponent: React.FC<ResetPasswordComponentProps> = ({ onSucce
   };
 
   return (
-    <div className={styles.container}>
-      <form className={styles.form} onSubmit={handleSubmit}>
+    <div className={commonStyles['form-container']}>
+      <form onSubmit={handleSubmit}>
         <h2>Reset Password</h2>
-        <div>
+        <div className={commonStyles['input-group']}>
           <label>Email:</label>
           <input
-            className={styles.input}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        {error && <div className={styles.error}>{error}</div>}
-        {message && <div className={styles.success}>{message}</div>}
-        <button className={styles.button} type="submit" disabled={loading}>
+        {error && <div className={commonStyles['error-message']}>{error}</div>}
+        {message && <div className={commonStyles['success-message']}>{message}</div>}
+        <button type="submit" className={commonStyles.button} disabled={loading}>
           {loading ? 'Sending...' : 'Send Reset Link'}
         </button>
       </form>

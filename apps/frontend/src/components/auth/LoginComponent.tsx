@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
-import styles from './LoginComponent.module.css';
+import commonStyles from './commonStyles.module.css';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -22,11 +22,11 @@ const LoginComponent = () => {
   };
 
   return (
-    <div className={styles['login-container']}>
+    <div className={commonStyles['form-container']}>
       <h2>Login</h2>
-      {error && <p className={styles['error-message']}>{error}</p>}
+      {error && <p className={commonStyles['error-message']}>{error}</p>}
       <form onSubmit={handleLogin}>
-        <div className={styles['input-group']}>
+        <div className={commonStyles['input-group']}>
           <label>Email:</label>
           <input 
             type="email" 
@@ -35,7 +35,7 @@ const LoginComponent = () => {
             required 
           />
         </div>
-        <div className={styles['input-group']}>
+        <div className={commonStyles['input-group']}>
           <label>Password:</label>
           <input 
             type="password" 
@@ -44,13 +44,13 @@ const LoginComponent = () => {
             required 
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className={commonStyles.button}>Login</button>
       </form>
-      <div className={styles['links']}>
-        <button className={styles['link-button']} onClick={() => navigate('/reset-password')}>
+      <div className={commonStyles.links}>
+        <button className={commonStyles['link-button']} onClick={() => navigate('/reset-password')}>
           Forgot Password?
         </button>
-        <button className={styles['link-button']} onClick={() => navigate('/register')}>
+        <button className={commonStyles['link-button']} onClick={() => navigate('/register')}>
           Don't have an account?
         </button>
       </div>

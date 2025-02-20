@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './RegisterComponent.module.css';
+import commonStyles from './commonStyles.module.css';
 
 interface RegisterComponentProps {
   onRegister: (data: { email: string; password: string }) => Promise<void>;
@@ -32,36 +32,34 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
   };
 
   return (
-    <div className={styles.container}>
-      <form className={styles.form} onSubmit={handleSubmit}>
+    <div className={commonStyles['form-container']}>
+      <form onSubmit={handleSubmit}>
         <h2>Register</h2>
-        <div>
+        <div className={commonStyles['input-group']}>
           <label>Email:</label>
           <input
-            className={styles.input}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div>
+        <div className={commonStyles['input-group']}>
           <label>Password:</label>
           <input
-            className={styles.input}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {error && <div className={styles.errorMessage}>{error}</div>}
-        {successMessage && <div className={styles.successMessage}>{successMessage}</div>}
-        <button className={styles.button} type="submit" disabled={loading}>
+        {error && <div className={commonStyles['error-message']}>{error}</div>}
+        {successMessage && <div className={commonStyles['success-message']}>{successMessage}</div>}
+        <button type="submit" className={commonStyles.button} disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>
       </form>
-      <button className={styles.linkButton} onClick={() => navigate('/login')}>
+      <button className={commonStyles['link-button']} onClick={() => navigate('/login')}>
         Already have an account?
       </button>
     </div>
