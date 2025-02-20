@@ -5,6 +5,9 @@ import { JwtService } from './jwtService';
 import { RefreshToken } from '../models/refreshToken';
 import { getRandomValues } from 'crypto';
 import { JwtPayload } from 'jsonwebtoken';
+import { getLogger } from '@warehouse/logging';
+
+const logger = getLogger('tokenService');
 
 export class TokenService {
   private refreshTokenRepository: RefreshTokenRepository;
@@ -14,7 +17,7 @@ export class TokenService {
     refreshTokenRepository: RefreshTokenRepository,
     jwtService: JwtService
   ) {
-    console.log('INFO: Creating TokenService instance');
+    logger.info('Creating TokenService instance');
     this.refreshTokenRepository = refreshTokenRepository;
     this.jwtService = jwtService;
   }
@@ -27,15 +30,28 @@ export class TokenService {
    * @returns {Promise<string>} A promise that resolves to the newly created refresh token.
    */
   async createRefreshToken(auth: Auth, req: Request): Promise<string> {
+    logger.debug('Creating refresh token', {
+      userId: auth.id,
+      userAgent: req.headers['user-agent']?.substring(0, 50),
+      ip: req.headers['x-forwarded-for']
+    });
+
     const now = new Date();
     const refreshToken = await this.generateRefreshToken();
+    const expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+
     await this.refreshTokenRepository.create(
       auth,
-      new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000),
+      expiresAt,
       refreshToken,
       req.headers['user-agent'] as string,
       req.headers['x-forwarded-for'] as string
     );
+
+    logger.info('Refresh token created', {
+      userId: auth.id,
+      expiresAt
+    });
 
     return refreshToken;
   }
@@ -55,7 +71,18 @@ export class TokenService {
    * @returns A promise that resolves to the found RefreshToken object, or undefined if not found.
    */
   async findRefreshToken(token: string): Promise<RefreshToken | undefined> {
-    return this.refreshTokenRepository.findByToken(token);
+    logger.debug('Looking up refresh token', {
+      tokenPrefix: token.substring(0, 8)
+    });
+
+    const result = await this.refreshTokenRepository.findByToken(token);
+
+    logger.info('Refresh token lookup completed', {
+      found: !!result,
+      userId: result?.auth.id
+    });
+
+    return result;
   }
 
   /**
@@ -78,15 +105,35 @@ export class TokenService {
   async createAccessToken(token: RefreshToken): Promise<string>;
   async createAccessToken(token: string): Promise<string>;
   async createAccessToken(token: RefreshToken | string): Promise<string> {
-    if (typeof token === 'string') {
-      token = await this.findRefreshToken(token);
-      if (!token) {
-        throw new Error('Refresh token not found');
-      }
-    }
+    logger.debug('Creating access token', {
+      tokenType: typeof token === 'string' ? 'string' : 'RefreshToken'
+    });
 
-    // TODO: Implement caching.
-    return this.jwtService.generateAccessToken(token.auth);
+    try {
+      if (typeof token === 'string') {
+        const foundToken = await this.findRefreshToken(token);
+        if (!foundToken) {
+          logger.warn('Refresh token not found', {
+            tokenPrefix: token.substring(0, 8)
+          });
+          throw new Error('Refresh token not found');
+        }
+        token = foundToken;
+      }
+
+      const accessToken = await this.jwtService.generateAccessToken(token.auth);
+      logger.info('Access token created', {
+        userId: token.auth.id
+      });
+
+      return accessToken;
+    } catch (error) {
+      logger.error('Failed to create access token', {
+        error: error.message,
+        userId: token instanceof RefreshToken ? token.auth.id : undefined
+      });
+      throw error;
+    }
   }
 
   /**
@@ -106,6 +153,7 @@ export class TokenService {
   }
 
   private async generateRefreshToken(): Promise<string> {
+    logger.debug('Generating new refresh token');
     const array = new Uint8Array(48);
     getRandomValues(array);
     return Buffer.from(array).toString('base64');

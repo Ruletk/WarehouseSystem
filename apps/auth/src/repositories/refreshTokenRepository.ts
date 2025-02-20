@@ -1,13 +1,16 @@
 import { DataSource, MoreThan, Repository } from 'typeorm';
 import { RefreshToken } from '../models/refreshToken';
 import { Auth } from '../models/auth';
+import { getLogger } from '@warehouse/logging';
+
+const logger = getLogger('refreshTokenRepository');
 
 export class RefreshTokenRepository {
   private dataSource: DataSource;
   private refreshTokenRepository: Repository<RefreshToken>;
 
   constructor(dataSource: DataSource) {
-    console.log('INFO: Creating RefreshTokenRepository instance');
+    logger.info('Creating RefreshTokenRepository instance');
     this.dataSource = dataSource;
     this.refreshTokenRepository = dataSource.getRepository(RefreshToken);
   }
@@ -29,6 +32,13 @@ export class RefreshTokenRepository {
     lastUserAgent: string,
     lastIP: string
   ): Promise<RefreshToken> {
+    logger.debug('Creating new refresh token', {
+      auth_id: auth.id,
+      expires,
+      lastIP,
+      userAgent: lastUserAgent.substring(0, 50)
+    });
+
     const refreshToken = this.refreshTokenRepository.create({
       auth,
       expires,
@@ -39,7 +49,10 @@ export class RefreshTokenRepository {
     const now = new Date();
     refreshToken.created_at = now;
     refreshToken.updated_at = now;
-    return this.refreshTokenRepository.save(refreshToken);
+
+    const saved = await this.refreshTokenRepository.save(refreshToken);
+    logger.info('Refresh token created', { token_id: saved.id });
+    return saved;
   }
 
   /**
@@ -50,10 +63,21 @@ export class RefreshTokenRepository {
    * @returns A promise that resolves to the found RefreshToken object or undefined if not found.
    */
   async findByToken(token: string): Promise<RefreshToken | undefined> {
-    return this.refreshTokenRepository.findOne({
+    logger.debug('Searching for refresh token', {
+      token: `${token.substring(0, 8)}...`
+    });
+
+    const result = await this.refreshTokenRepository.findOne({
       where: { token, expires: MoreThan(new Date()) },
       relations: ['auth'],
     });
+
+    logger.info('Token search completed', {
+      found: !!result,
+      isExpired: result ? result.expires < new Date() : undefined
+    });
+
+    return result;
   }
 
   /**
@@ -63,6 +87,10 @@ export class RefreshTokenRepository {
    * @returns A promise that resolves to a boolean indicating whether the token was successfully marked as deleted.
    */
   async delete(token: string): Promise<boolean> {
+    logger.warn('Deleting refresh token', {
+      token: `${token.substring(0, 8)}...`
+    });
+
     const now = new Date();
     const updateRes = await this.refreshTokenRepository
       .createQueryBuilder()
@@ -70,6 +98,12 @@ export class RefreshTokenRepository {
       .set({ expires: now })
       .where({ token, expires: MoreThan(now) })
       .execute();
+
+    logger.info('Token deletion completed', {
+      success: updateRes.affected !== 0,
+      affectedRows: updateRes.affected
+    });
+
     return updateRes.affected !== 0;
   }
 
@@ -86,10 +120,19 @@ export class RefreshTokenRepository {
    * @returns {Promise<void>} A promise that resolves when the operation is complete.
    */
   async deleteAllExpired(): Promise<void> {
-    await this.refreshTokenRepository
+    logger.crit('Attempting to delete all expired tokens', {
+      timestamp: new Date().toISOString()
+    });
+
+    const result = await this.refreshTokenRepository
       .createQueryBuilder()
       .delete()
       .where({ expires: MoreThan(new Date()) })
       .execute();
+
+    logger.warn('Expired tokens deletion completed', {
+      affectedRows: result.affected,
+      timestamp: new Date().toISOString()
+    });
   }
 }

@@ -1,12 +1,17 @@
+import { getLogger } from '@warehouse/logging';
+
+const logger = getLogger('emailService');
+
 export class EmailService {
   async sendEmail(
     email: string,
     subject: string,
     message: string
   ): Promise<void> {
-    console.log(`Sending email to ${email}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Message: ${message}`);
+    logger.debug('Mock: Sending email', {
+      to: email,
+      subject
+    });
   }
 
   async sendActivationEmail(
