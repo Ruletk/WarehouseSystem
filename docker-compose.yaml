@@ -40,6 +40,7 @@ services:
       timeout: 1s
       retries: 100
     volumes:
+      - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
       - rabbitmq_data:/var/lib/rabbitmq
 
   backend:
