@@ -11,7 +11,7 @@ const App = () => {
 
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/user/verify/:token" element={<VerifyPage />} />
+        <Route path="/activate/:token" element={<VerifyPage />} />
       </Routes>
     </Router>
   );

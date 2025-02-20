@@ -12,7 +12,7 @@ const ActivateAccount: React.FC<ActivateAccountProps> = ({ token }) => {
   useEffect(() => {
     const activateUser = async () => {
       try {
-        const response = await axios.get(`/api/v1/auth/user/verify/${token}`);
+        const response = await axios.get(`/api/v1/auth/activate/${token}`);
         if (response.data && response.data.message) {
           setMessage(response.data.message);
         }

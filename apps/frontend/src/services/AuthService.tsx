@@ -3,18 +3,27 @@ import axios from 'axios';
 const API_URL = 'http://localhost/api/v1/auth';
 
 class AuthService {
-  // Регистрация пользователя
-  async register(email: string, password: string): Promise<any> {
+  async register(email: string, password: string) {
     try {
-      const response = await axios.post(`${API_URL}/register`, { email, password });
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+      console.log('Server response:', data); 
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
-      throw new Error('Registration failed');
+  
+      return data;
+    } catch (error) {
+      console.error('AuthService Error:', error);
+      throw error;
     }
-  }
+  };
 
   // Вход пользователя
   async login(email: string, password: string): Promise<any> {
@@ -70,7 +79,7 @@ class AuthService {
   // Активация аккаунта
   async activateAccount(token: string): Promise<any> {
     try {
-      const response = await axios.get(`${API_URL}/user/verify/${token}`);
+      const response = await axios.get(`${API_URL}/activate/${token}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
