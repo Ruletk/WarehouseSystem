@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import RegisterComponent from '../../components/auth/RegisterComponent';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost/api/v1';
+const API_URL = 'api/v1/auth/register/register';
 
 const RegisterPage = () => {
   const handleRegister = async (data: { email: string; password: string }) => {
