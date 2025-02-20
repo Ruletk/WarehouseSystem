@@ -22,6 +22,26 @@ services:
       timeout: 1s
       retries: 30
 
+  rabbitmq:
+    image: rabbitmq:4.0.5-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbituser
+      RABBITMQ_DEFAULT_PASS: rabbitpass
+      TZ: Asia/Aqtobe
+    networks:
+      - internal
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   backend:
   # Backend will be running on nginx
   # Internal exposed port is 8080
@@ -149,3 +169,4 @@ networks:
 
 volumes:
   db_data:
+  rabbitmq_data:
