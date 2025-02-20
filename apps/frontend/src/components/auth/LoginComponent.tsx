@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import styles from './LoginComponent.module.css';
 
@@ -6,6 +7,7 @@ const LoginComponent = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +46,14 @@ const LoginComponent = () => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <div className={styles['links']}>
+        <button className={styles['link-button']} onClick={() => navigate('/reset-password')}>
+          Forgot Password?
+        </button>
+        <button className={styles['link-button']} onClick={() => navigate('/register')}>
+          Don't have an account?
+        </button>
+      </div>
     </div>
   );
 };
