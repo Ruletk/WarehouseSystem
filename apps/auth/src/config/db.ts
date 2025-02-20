@@ -49,10 +49,10 @@ export async function connectDB(): Promise<DataSource> {
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
       config: {
-        host: AppDataSource.options.host,
-        port: AppDataSource.options.port,
-        database: AppDataSource.options.database,
-        username: AppDataSource.options.username
+        host: process.env.DB_HOST || 'localhost',
+        port: Number(process.env.DB_PORT) || 5432,
+        database: process.env.DB_NAME || 'db',
+        username: process.env.DB_USER || 'postgres'
       }
     });
 
