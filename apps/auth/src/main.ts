@@ -2,7 +2,12 @@ import express from 'express';
 import * as path from 'path';
 import cors from 'cors';
 import cookies from 'cookie-parser';
-import { getLogger } from '@warehouse/logging';
+import { applyOptions, getLogger } from '@warehouse/logging';
+
+applyOptions({
+  level: process.env.LOG_LEVEL || 'debug',
+  label: 'auth',
+});
 
 import { healthRouter } from './routes/healthRouter';
 import { connectDB } from './config/db';
@@ -13,6 +18,9 @@ import { TokenService } from './services/tokenService';
 import { JwtService } from './services/jwtService';
 import { RefreshTokenRepository } from './repositories/refreshTokenRepository';
 import { EmailService } from './services/emailService';
+
+const start = Date.now();
+
 
 const logger = getLogger('main');
 
@@ -71,9 +79,12 @@ async function main() {
     });
     throw error;
   }
+
+  const elapsed = Date.now() - start;
+  logger.info('Service initialized', { elapsed });
 }
 
-main().catch((error) => {
+main().catch((error: Error) => {
   logger.crit('Fatal: Uncaught exception', {
     error: {
       message: error.message,
@@ -85,10 +96,12 @@ main().catch((error) => {
 
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
+  const elapsed = Date.now() - start;
   logger.info('Server started', {
     port,
     url: `http://localhost:${port}`,
-    nodeEnv: process.env.NODE_ENV
+    nodeEnv: process.env.NODE_ENV,
+    elapsed
   });
 });
 
@@ -96,7 +109,6 @@ server.on('error', (error) => {
   logger.error('Server error occurred', {
     error: {
       message: error.message,
-      code: error.code,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }
   });

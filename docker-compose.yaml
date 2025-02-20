@@ -87,6 +87,8 @@ services:
       DB_USER: postgres
       DB_PASS: postgres
       DB_NAME: db
+    volumes:
+      - ./logs/auth:/app/logs
     networks:
       - internal
     depends_on:
