@@ -1,18 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import ActivateAccount from '../../components/auth/ActivateAccount';
+import AuthService from '../../services/AuthService';
 
 const VerifyPage = () => {
-  const { token } = useParams<{ token: string }>(); 
+  const { token } = useParams<{ token: string }>();
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const activateAccount = async () => {
+      try {
+        if (!token) {
+          setError('Invalid activation link.');
+          return;
+        }
+        const response = await AuthService.activateAccount(token);
+        if (response && response.message) {
+          setMessage(response.message);
+        }
+      } catch (err: any) {
+        setError(err.message || 'Account activation failed.');
+      }
+    };
+
+    activateAccount();
+  }, [token]);
 
   return (
     <div>
-      <h1>Verify Account</h1>
-      {token ? (
-        <ActivateAccount token={token} />
-      ) : (
-        <div style={{ color: 'red', fontWeight: 'bold' }}>Invalid activation link.</div>
-      )}
+      <h1>Account Activation</h1>
+      {message && <div style={{ color: 'green', fontWeight: 'bold' }}>{message}</div>}
+      {error && <div style={{ color: 'red', fontWeight: 'bold' }}>{error}</div>}
     </div>
   );
 };
