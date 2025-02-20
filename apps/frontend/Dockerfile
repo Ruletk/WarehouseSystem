@@ -7,7 +7,9 @@ COPY package.json package-lock.json ./
 
 RUN npm ci
 
-COPY . .
+COPY nx.json eslint.config.cjs jest.preset.js jest.config.ts tsconfig.base.json ./
+COPY shared/ shared/
+COPY apps/frontend/ apps/frontend/
 
 RUN npx nx build frontend --configuration=production
 

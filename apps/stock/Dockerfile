@@ -6,9 +6,12 @@ COPY package.json package-lock.json ./
 
 RUN npm ci
 
-COPY . .
+COPY nx.json eslint.config.cjs jest.preset.js jest.config.ts tsconfig.base.json ./
+COPY shared/ shared/
+COPY apps/stock/ apps/stock/
 
-RUN npx nx build stock --configuration=production
+RUN npx nx reset && \
+    npx nx build stock --configuration=production
 
 
 FROM node:18-slim as production
