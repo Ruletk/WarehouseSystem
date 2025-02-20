@@ -1,6 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Auth } from '../models/auth';
 import { RefreshToken } from '../models/refreshToken';
+import { getLogger } from '@warehouse/logging';
+
+const logger = getLogger('database');
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -17,12 +20,60 @@ export const AppDataSource = new DataSource({
 });
 
 export async function connectDB(): Promise<DataSource> {
+  logger.info('Configuring database connection', {
+    host: process.env.DB_HOST || 'localhost',
+    port: Number(process.env.DB_PORT) || 5432,
+    database: process.env.DB_NAME || 'db',
+    username: process.env.DB_USER || 'postgres',
+  });
+
   try {
+    const startTime = Date.now();
     await AppDataSource.initialize();
-    console.log('Database connection established');
+    const connectionTime = Date.now() - startTime;
+
+    logger.info('Connection established successfully', {
+      connectionTimeMs: connectionTime,
+      entities: AppDataSource.entityMetadatas.map(entity => entity.name),
+      isSynchronized: AppDataSource.isInitialized,
+      databaseName: AppDataSource.options.database
+    });
+
     return AppDataSource;
   } catch (error) {
-    console.error('FATAL: Database connection error', error);
+    logger.crit('Failed to establish database connection', {
+      error: {
+        name: error.name,
+        message: error.message,
+        code: error.code,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
+      config: {
+        host: AppDataSource.options.host,
+        port: AppDataSource.options.port,
+        database: AppDataSource.options.database,
+        username: AppDataSource.options.username
+      }
+    });
+
     process.exit(1);
   }
 }
+
+// Shutdown handling
+process.on('SIGINT', async () => {
+  logger.warn('Received shutdown signal, closing database connection');
+
+  try {
+    if (AppDataSource.isInitialized) {
+      await AppDataSource.destroy();
+      logger.info('Database connection closed successfully');
+    }
+  } catch (error) {
+    logger.error('Error during database shutdown', {
+      error: error.message
+    });
+  }
+
+  process.exit(0);
+});
