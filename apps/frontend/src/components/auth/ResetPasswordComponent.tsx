@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import commonStyles from './commonStyles.module.css';
 
@@ -11,6 +12,7 @@ const ResetPasswordComponent: React.FC<ResetPasswordComponentProps> = ({ onSucce
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +50,13 @@ const ResetPasswordComponent: React.FC<ResetPasswordComponentProps> = ({ onSucce
           {loading ? 'Sending...' : 'Send Reset Link'}
         </button>
       </form>
+      <button
+        className={commonStyles['link-button']}
+        onClick={() => navigate('/login')} 
+        style={{ marginTop: '20px' }} 
+      >
+        Back to Login
+      </button>
     </div>
   );
 };
