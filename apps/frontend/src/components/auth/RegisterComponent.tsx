@@ -10,14 +10,17 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMessage(null); 
 
     try {
       await onRegister({ email, password });
+      setSuccessMessage('Successfully registered. Check your email for verification.'); 
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -47,7 +50,8 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
           required
         />
       </div>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div style={{ color: 'red' }}>{error}</div>} 
+      {successMessage && <div style={{ color: 'green' }}>{successMessage}</div>}
       <button className={styles.button} type="submit" disabled={loading}>
         {loading ? 'Registering...' : 'Register'}
       </button>
