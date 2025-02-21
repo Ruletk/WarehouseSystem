@@ -26,6 +26,8 @@ const logger = getLogger('main');
 logger.info('Starting warehouse service', { startTimestamp: start });
 const app = express();
 
+logger.info('Initializing warehouse service');
+
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -33,45 +35,63 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 let DB: DataSource;
 
 async function main() {
-  // Initialize Dependencies
-  DB = await connectDB();
+  logger.debug('Starting warehouse service initialization');
 
-  // Initialize Repositories
-  const warehouseRepository = new WarehouseRepository(DB);
-  const warehouseTagRepository = new WarehouseTagRepository(DB);
-  const warehouseUserRepository = new WarehouseUserRepository(DB);
-  // To prevent unused variable error
-  console.log(
-    !!warehouseRepository,
-    !!warehouseTagRepository,
-    !!warehouseUserRepository
-  );
-  // True if all are initialized
+  try {
+    // Initialize Dependencies
+    logger.debug('Initializing database connection');
+    DB = await connectDB();
 
-  // Initialize Services
-  const warehouseService = new WarehouseService(warehouseRepository);
-  const warehouseTagService = new WarehouseTagService(warehouseTagRepository);
-  const warehouseUserService = new WarehouseUserService(
-    warehouseUserRepository
-  );
-  // Initialize APIs
-  const warehouseAPI = new WarehouseAPI(
-    warehouseService,
-    warehouseTagService,
-    warehouseUserService
-  );
+    // Initialize Repositories
+    logger.debug('Initializing repositories');
+    const warehouseRepository = new WarehouseRepository(DB);
+    const warehouseTagRepository = new WarehouseTagRepository(DB);
+    const warehouseUserRepository = new WarehouseUserRepository(DB);
 
-  // Initialize Routers
-  const warehouseRouter = express.Router();
-  warehouseAPI.registerRoutes(warehouseRouter);
+    // Initialize Services
+    logger.debug('Initializing services');
+    const warehouseService = new WarehouseService(warehouseRepository);
+    const warehouseTagService = new WarehouseTagService(warehouseTagRepository);
+    const warehouseUserService = new WarehouseUserService(warehouseUserRepository);
 
-  // Register Routers
-  app.use('/', warehouseRouter);
-  app.use('/health', healthRouter);
+    // Initialize APIs
+    logger.debug('Initializing API layer');
+    const warehouseAPI = new WarehouseAPI(
+      warehouseService,
+      warehouseTagService,
+      warehouseUserService
+    );
+
+    // Initialize Routers
+    logger.debug('Setting up routes');
+    const warehouseRouter = express.Router();
+    warehouseAPI.registerRoutes(warehouseRouter);
+
+    // Register Routers
+    logger.debug('Registering routes');
+    app.use('/', warehouseRouter);
+    app.use('/health', healthRouter);
+
+    logger.info('Warehouse service initialized successfully');
+  } catch (error) {
+    logger.crit('Failed to initialize warehouse service', {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      }
+    });
+    throw error;
+  }
 }
 
 main().catch((error) => {
-  console.error(error);
+  logger.crit('Fatal: Uncaught exception in main', {
+    error: {
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }
+  });
   process.exit(1);
 });
 
