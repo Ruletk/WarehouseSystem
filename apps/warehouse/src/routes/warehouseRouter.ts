@@ -94,7 +94,7 @@ export class WarehouseAPI {
     });
     const response = await this.warehouseService.createWarehouse(req.body);
     logger.info('Warehouse created', {
-      warehouseId: response.id
+      warehouse: response.toJSON()
     });
     handleResponse(res, response, 201);
   }
