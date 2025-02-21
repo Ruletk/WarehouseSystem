@@ -59,21 +59,3 @@ export async function connectDB(): Promise<DataSource> {
     process.exit(1);
   }
 }
-
-// Shutdown handling
-process.on('SIGINT', async () => {
-  logger.warn('Received shutdown signal, closing database connection');
-
-  try {
-    if (AppDataSource.isInitialized) {
-      await AppDataSource.destroy();
-      logger.info('Database connection closed successfully');
-    }
-  } catch (error) {
-    logger.error('Error during database shutdown', {
-      error: error.message
-    });
-  }
-
-  process.exit(0);
-});
