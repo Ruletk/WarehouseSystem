@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {validateRequest} from "@warehouse/validation";
+import { getLogger } from '@warehouse/logging';
 import {
   AssignUserRoleRequest,
   CreateRoleRequest,
@@ -13,6 +14,8 @@ import {WarehouseTagService} from "../services/warehouseTagService";
 import {WarehouseUserService} from "../services/warehouseUserService"
 import {Warehouse} from "../models/warehouse";
 
+const logger = getLogger('warehouseAPI');
+
 export class WarehouseAPI {
   // # Uncomment the following lines to enable dependency injection
 
@@ -24,23 +27,24 @@ export class WarehouseAPI {
     warehouseTagService: WarehouseTagService,
     warehouseUserService: WarehouseUserService
   ) {
-    console.log('INFO: Creating WarehouseAPI instance');
+    logger.info('Creating WarehouseAPI instance');
     this.warehouseService = warehouseService;
     this.warehouseTagService = warehouseTagService;
     this.warehouseUserService = warehouseUserService;
   }
 
   registerRoutes(router: Router): void {
-    console.log('INFO: Registering warehouse routes');
+    logger.info('Registering warehouse routes');
     this.registerWarehouseRoutes(router);
     this.registerTagRoutes(router);
     this.registerRoleRoutes(router);
   }
 
   private registerWarehouseRoutes(router: Router): void {
-    console.log(
-      `INFO: Registering warehouse routes with router: ${router.name}.`
-    );
+    logger.debug('Registering warehouse routes', {
+      routerName: router.name,
+      routes: ['/', '/:id']
+    });
 
     router.get('/', this.getWarehousesHandler.bind(this));
     router.post('/', validateRequest(CreateWarehouseRequest), this.createWarehouseHandler.bind(this));
@@ -50,9 +54,10 @@ export class WarehouseAPI {
   }
 
   private registerTagRoutes(router: Router): void {
-    console.log(
-      `INFO: Registering tag routes with router: ${router.name}.`
-    );
+    logger.debug('Registering tag routes', {
+      routerName: router.name,
+      routes: ['/tags', '/tags/:id']
+    });
 
     router.get('/tags', this.getTagsHandler.bind(this));
     router.post('/tags', validateRequest(CreateTagRequest), this.createTagHandler.bind(this));
@@ -61,9 +66,10 @@ export class WarehouseAPI {
   }
 
   private registerRoleRoutes(router: Router): void {
-    console.log(
-      `INFO: Registering role routes with router: ${router.name}.`
-    );
+    logger.debug('Registering role routes', {
+      routerName: router.name,
+      routes: ['/roles', '/roles/:id', '/roles/:id/user']
+    });
 
     router.get('/roles', this.getRolesHandler.bind(this));
     router.post('/roles', validateRequest(CreateRoleRequest), this.createRoleHandler.bind(this));
@@ -74,28 +80,54 @@ export class WarehouseAPI {
   }
 
   private async getWarehousesHandler(req, res) {
+    logger.debug('Handling get all warehouses request');
     const response = await this.warehouseService.getAllWarehouses();
+    logger.info('Get all warehouses completed', {
+      count: Array.isArray(response) ? response.length : 0
+    });
     handleResponse(res, response);
   }
 
   private async createWarehouseHandler(req, res) {
+    logger.debug('Handling create warehouse request', {
+      name: req.body.name
+    });
     const response = await this.warehouseService.createWarehouse(req.body);
+    logger.info('Warehouse created', {
+      warehouseId: response.id
+    });
     handleResponse(res, response, 201);
   }
 
   private async updateWarehouseHandler(req, res) {
+    const id = parseInt(req.params.id, 10);
+    logger.debug('Handling update warehouse request', {
+      warehouseId: id
+    });
     const response = await this.warehouseService.updateWarehouseById({
-      id: parseInt(req.params.id, 10),
+      id,
       ...req.body,
     } as UpdateWarehouseRequest);
+    logger.info('Warehouse updated', {
+      warehouseId: id
+    });
     handleResponse(res, response);
   }
 
   private async deleteWarehouseHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    if (isNaN(id)) {
+      logger.warn('Invalid warehouse ID provided', { id: req.params.id });
+      return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    }
 
+    logger.debug('Handling delete warehouse request', {
+      warehouseId: id
+    });
     const response = await this.warehouseService.deleteWarehouseById(id);
+    logger.info('Warehouse deleted', {
+      warehouseId: id
+    });
     handleResponse(res, response);
   }
 
@@ -218,6 +250,9 @@ export class WarehouseAPI {
   }
 }
 const handleResponse = (res, response, successStatus = 200) => {
+  logger.debug('Sending response', {
+    status: 'code' in response ? response.code : successStatus
+  });
   if ('code' in response) return res.status(response.code).send(response);
   res.status(successStatus).send(response);
 };

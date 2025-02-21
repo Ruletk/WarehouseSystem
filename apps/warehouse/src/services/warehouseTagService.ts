@@ -1,33 +1,37 @@
-import {
-  CreateTagRequest,
-  UpdateTagRequest,
-} from '../dto/request';
-import {
-  WarehouseTagListResponse,
-  WarehouseTagResponse,
-} from '../dto/response';
+import { CreateTagRequest, UpdateTagRequest } from '../dto/request';
+import { WarehouseTagListResponse, WarehouseTagResponse } from '../dto/response';
 import { ApiResponse } from '@warehouse/validation';
-import {WarehouseTagRepository} from "../repositories/warehouseTagRepository";
-import {Warehouse} from "../models/warehouse";
+import { WarehouseTagRepository } from "../repositories/warehouseTagRepository";
+import { Warehouse } from "../models/warehouse";
+import { getLogger } from '@warehouse/logging';
 
-export class WarehouseTagService{
+const logger = getLogger('warehouseTagService');
+
+export class WarehouseTagService {
   private warehouseTagRepository: WarehouseTagRepository;
 
-  constructor(warehouseTagRepository: WarehouseTagRepository){
+  constructor(warehouseTagRepository: WarehouseTagRepository) {
+    logger.info('Creating WarehouseTagService instance');
     this.warehouseTagRepository = warehouseTagRepository;
   }
 
   public async getAllTags(): Promise<WarehouseTagListResponse | ApiResponse> {
+    logger.debug('Fetching all warehouse tags');
+
     try {
-      // Find warehouses by tags using the repository
       const warehouses = await this.warehouseTagRepository.findAll();
+
       if (!warehouses || warehouses.length === 0) {
+        logger.info('No warehouse tags found');
         return ApiResponse.from({
           message: 'No warehouses found for the provided tags.',
         });
       }
 
-      // Transform the data into WarehouseResponse format
+      logger.info('Retrieved all warehouse tags', {
+        count: warehouses.length
+      });
+
       const warehouseTagResponses = warehouses.map((warehouse) =>
         WarehouseTagResponse.from({
           tagId: warehouse.tagId,
@@ -37,14 +41,13 @@ export class WarehouseTagService{
         })
       );
 
-      // Return the response
       return WarehouseTagListResponse.from({ tags: warehouseTagResponses });
     } catch (error) {
-      // Handle errors
-      console.error('Error fetching warehouses by tags:', error);
+      logger.error('Failed to fetch warehouse tags', {
+        error: error.message
+      });
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }
@@ -53,20 +56,32 @@ export class WarehouseTagService{
     warehouseId: Warehouse,
     req: CreateTagRequest
   ): Promise<WarehouseTagResponse | ApiResponse> {
+    logger.debug('Creating new warehouse tag', {
+      warehouseId: warehouseId.id,
+      tag: req.tag
+    });
+
     try {
-      // Create the warehouse using repository
       const warehouse = await this.warehouseTagRepository.create(
         req.tag,
         warehouseId
       );
 
       if (!warehouse) {
+        logger.warn('Failed to create warehouse tag', {
+          warehouseId: warehouseId.id,
+          tag: req.tag
+        });
         return ApiResponse.from({
           message: 'Failed to create warehouse with the provided tag.',
         });
       }
 
-      // Transform the created warehouse into WarehouseResponse format
+      logger.info('Warehouse tag created successfully', {
+        tagId: warehouse.tagId,
+        warehouseId: warehouseId.id
+      });
+
       return WarehouseTagResponse.from({
         tagId: warehouse.tagId,
         tag: req.tag,
@@ -74,10 +89,13 @@ export class WarehouseTagService{
         updatedAt: warehouse.updatedAt
       });
     } catch (error) {
-      console.error('Error creating warehouse with tag:', error);
+      logger.error('Error creating warehouse tag', {
+        warehouseId: warehouseId.id,
+        tag: req.tag,
+        error: error.message
+      });
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }
@@ -85,17 +103,18 @@ export class WarehouseTagService{
   public async updateTagById(
     req: UpdateTagRequest
   ): Promise<WarehouseTagResponse | ApiResponse> {
+    logger.debug('Updating warehouse tag', { tagId: req.id });
+
     try {
-      // Find existing tag by its ID using the repository
       const existingTag = await this.warehouseTagRepository.findById(req.id);
 
       if (!existingTag) {
+        logger.warn('Tag not found for update', { tagId: req.id });
         return ApiResponse.from({
           message: `Tag with id ${req.id} not found`,
         });
       }
 
-      // Update the tag data using the repository
       await this.warehouseTagRepository.update({
         tagId: req.id,
         tag: existingTag.tag,
@@ -103,7 +122,8 @@ export class WarehouseTagService{
         updatedAt: existingTag.updatedAt,
       });
 
-      // Transform the updated tag into the response format
+      logger.info('Tag updated successfully', { tagId: req.id });
+
       return WarehouseTagResponse.from({
         tagId: req.id,
         tag: existingTag.tag,
@@ -111,38 +131,43 @@ export class WarehouseTagService{
         updatedAt: existingTag.updatedAt,
       });
     } catch (error) {
-      console.error('Error updating tag by id:', error);
+      logger.error('Failed to update tag', {
+        tagId: req.id,
+        error: error.message
+      });
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }
 
   public async deleteTagById(id: number): Promise<ApiResponse> {
+    logger.debug('Deleting warehouse tag', { tagId: id });
+
     try {
-      // Find the tag by its ID using the repository
       const existingTag = await this.warehouseTagRepository.findById(id);
 
       if (!existingTag) {
+        logger.warn('Tag not found for deletion', { tagId: id });
         return ApiResponse.from({
           message: `Tag with id ${id} not found`,
         });
       }
 
-      // Soft delete the tag using the repository
       await this.warehouseTagRepository.softDelete(id);
 
-      // Return a successful response
+      logger.info('Tag deleted successfully', { tagId: id });
+
       return ApiResponse.from({
         message: 'Tag deleted successfully',
       });
     } catch (error) {
-      console.error('Error deleting tag by id:', error);
-
+      logger.error('Failed to delete tag', {
+        tagId: id,
+        error: error.message
+      });
       return ApiResponse.from({
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       });
     }
   }
