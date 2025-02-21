@@ -1,7 +1,7 @@
 import { validateRequest, validateQuery, validateParams } from './validation';
 import { Request, Response } from 'express';
 import { plainToInstance } from 'class-transformer';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 
 jest.mock('class-transformer', () => ({
   plainToInstance: jest.fn(),
