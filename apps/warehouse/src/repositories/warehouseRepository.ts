@@ -14,8 +14,9 @@ export class WarehouseRepository {
     name: string,
     latitude: number,
     longitude: number,
-    address: string
+    address?: string
   ): Promise<Warehouse> {
+    console.log('Request body:', name, latitude, longitude, address);
     const warehouse = this.repository.create({
       name,
       latitude,
@@ -23,6 +24,7 @@ export class WarehouseRepository {
       address,
     });
 
+    console.log('Warehouse repository:', warehouse);
     return await this.repository.save(warehouse);
   }
 
@@ -31,7 +33,7 @@ export class WarehouseRepository {
   }
 
   async softDelete(id: number): Promise<void> {
-    await this.repository.insert({ id, deletedAt: new Date() });
+    await this.repository.update(id, { deletedAt: new Date() });
   }
 
   async hardDelete(id: number): Promise<void> {

@@ -19,6 +19,7 @@ export class WarehouseService {
   public async createWarehouse(
     req: CreateWarehouseRequest
   ): Promise<WarehouseResponse | ApiResponse> {
+    console.log('Request body:', req);
     try {
       // Create a new warehouse instance
       const warehouse = await this.warehouseRepository.create(
@@ -28,6 +29,7 @@ export class WarehouseService {
         req.address
       );
 
+      console.log('Warehouse: ', warehouse);
       return WarehouseResponse.from({
         id: warehouse.id,
         name: warehouse.name,
@@ -68,6 +70,8 @@ export class WarehouseService {
     } catch (error) {
       console.error('Ошибка при получении складов:', error);
       return ApiResponse.from({
+        code: 500,
+        type: "error",
         message: 'Не удалось получить список складов.',
       });
     }
@@ -84,6 +88,8 @@ export class WarehouseService {
 
       if (!existingWarehouse) {
         return ApiResponse.from({
+          code: 404,
+          type: "error",
           message: 'Warehouse with id ${id} not found',
         });
       }
@@ -102,6 +108,8 @@ export class WarehouseService {
 
       if (!updatedWarehouse) {
         return ApiResponse.from({
+          code: 500, // TODO: хз какой код
+          type: "error",
           message: 'Failed to retrieve updated warehouse with id ${id}',
         });
       }
@@ -121,6 +129,8 @@ export class WarehouseService {
       console.error('Error updating warehouse:', error);
 
       return ApiResponse.from({
+        code: 500,
+        type: "error",
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });
@@ -134,6 +144,8 @@ export class WarehouseService {
 
       if (!existingWarehouse) {
         return ApiResponse.from({
+          code: 404,
+          type: "error",
           message: 'Warehouse with id ${id} not found',
         });
       }
@@ -143,6 +155,8 @@ export class WarehouseService {
 
       // Возвращаем успешный ответ
       return ApiResponse.from({
+        code: 200,
+        type: "success",
         message: 'Warehouse deleted successfully',
       });
     } catch (error) {
@@ -150,6 +164,8 @@ export class WarehouseService {
       console.error('Error deleting warehouse:', error);
 
       return ApiResponse.from({
+        code: 500,
+        type: "error",
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });
@@ -165,6 +181,8 @@ export class WarehouseService {
 
       if (!warehouse) {
         return ApiResponse.from({
+          code: 404,
+          type: "error",
           message: 'Warehouse with id ${id} not found',
         });
       }
@@ -183,6 +201,8 @@ export class WarehouseService {
       // Обработка ошибок
       console.error('Error fetching warehouse by id:', error);
       return ApiResponse.from({
+        code: 500,
+        type: "error",
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       });

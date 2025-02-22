@@ -79,8 +79,14 @@ export class WarehouseAPI {
   }
 
   private async createWarehouseHandler(req, res) {
-    const response = await this.warehouseService.createWarehouse(req.body);
-    handleResponse(res, response, 201);
+    console.log('Request body:', req.body); // Log the request body
+    try {
+      const response = await this.warehouseService.createWarehouse(req.body);
+      handleResponse(res, response, 201);
+    } catch (error) {
+      console.error('Error in createWarehouseHandler:', error); // Log errors
+      res.status(500).send({ message: 'An error occurred while creating the warehouse.', error: error.message });
+    }
   }
 
   private async updateWarehouseHandler(req, res) {
@@ -93,10 +99,17 @@ export class WarehouseAPI {
 
   private async deleteWarehouseHandler(req, res) {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    if (isNaN(id)) {
+      return res.status(400).send({ message: 'Invalid warehouse ID.' });
+    }
 
-    const response = await this.warehouseService.deleteWarehouseById(id);
-    handleResponse(res, response);
+    try {
+      const response = await this.warehouseService.deleteWarehouseById(id);
+      handleResponse(res, response);
+    } catch (error) {
+      console.error('Error in deleteWarehouseHandler:', error);
+      res.status(500).send({ message: 'An error occurred while deleting the warehouse.', error: error.message });
+    }
   }
 
   private async getWarehouseHandler(req, res) {
@@ -218,6 +231,6 @@ export class WarehouseAPI {
   }
 }
 const handleResponse = (res, response, successStatus = 200) => {
-  if ('code' in response) return res.status(response.code).send(response);
+  if (response && 'code' in response) return res.status(response.code).send(response);
   res.status(successStatus).send(response);
 };

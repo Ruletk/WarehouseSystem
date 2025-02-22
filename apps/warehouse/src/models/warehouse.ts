@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { WarehouseTag } from './warehouseTag';
 import { WarehouseUser } from './warehouseUser';
 
@@ -19,10 +19,10 @@ export class Warehouse {
   @Column({ name: 'address', nullable: true })
   address: string;
 
-  @Column({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
   @Column({ name: 'deleted_at', nullable: true, default: null })
