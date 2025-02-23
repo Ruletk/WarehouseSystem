@@ -46,6 +46,27 @@ services:
 =======
 >>>>>>> 63818c9 (feat(frontend): Added Dockerfile for frontend deploy)
 
+  rabbitmq:
+    image: rabbitmq:4.0.5-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbituser
+      RABBITMQ_DEFAULT_PASS: rabbitpass
+      TZ: Asia/Aqtobe
+    networks:
+      - internal
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
+    volumes:
+      - ./services/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - rabbitmq_data:/var/lib/rabbitmq
+
   backend:
   # Backend will be running on nginx
   # Internal exposed port is 8080
@@ -73,17 +94,23 @@ services:
 
   frontend:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d969220 (feat(docker): add RabbitMQ service with healthcheck and configuration; update frontend healthcheck and logging volume)
   # Frontend will be running on nginx
   # Internal exposed port is 80
   # External exposed port is 80
   ### For development branch it temporarily uses the same image as backend
   ### But later it will be changed to the frontend image (react + nginx)
+<<<<<<< HEAD
 =======
     # Frontend will be running on nginx
     # Internal exposed port is 80
     # External exposed port is 80
     image: frontend
 >>>>>>> 63818c9 (feat(frontend): Added Dockerfile for frontend deploy)
+=======
+>>>>>>> d969220 (feat(docker): add RabbitMQ service with healthcheck and configuration; update frontend healthcheck and logging volume)
     build:
       context: .
       dockerfile: ./apps/frontend/Dockerfile
@@ -99,6 +126,11 @@ services:
       - "80:80"
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD", "systemctl", "status", "nginx"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
 
   auth:
     image: auth
@@ -175,4 +207,8 @@ networks:
 
 volumes:
   db_data:
+<<<<<<< HEAD
   rabbitmq_data:
+=======
+  rabbitmq_data:
+>>>>>>> d969220 (feat(docker): add RabbitMQ service with healthcheck and configuration; update frontend healthcheck and logging volume)
