@@ -26,8 +26,6 @@ const logger = getLogger('main');
 logger.info('Starting warehouse service', { startTimestamp: start });
 const app = express();
 
-logger.info('Initializing warehouse service');
-
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
