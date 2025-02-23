@@ -38,6 +38,9 @@ app.use(express.json());
 app.use(cookies());
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+// Core dependencies here
+let DB: DataSource = null;
+
 async function main() {
   logger.info('Starting authentication service');
 
@@ -45,9 +48,9 @@ async function main() {
     logger.debug('Initializing database connection');
     DB = await connectDB();
 
-  //Initialize repositories
-  const authRepository = new AuthRepository(DB);
-  const refreshTokenRepository = new RefreshTokenRepository(DB);
+    logger.debug('Initializing repositories');
+    const authRepository = new AuthRepository(DB);
+    const refreshTokenRepository = new RefreshTokenRepository(DB);
 
     logger.debug('Initializing services');
     const jwtService = new JwtService();
@@ -65,13 +68,32 @@ async function main() {
     const authRouter = express.Router();
     authAPI.registerRoutes(authRouter);
 
-  // Register routers
-  app.use('/', authRouter);
-  app.use('/health', healthRouter);
+    logger.debug('Registering routes');
+    app.use('/', authRouter);
+    app.use('/health', healthRouter);
+
+    logger.info('Authentication service initialized successfully');
+  } catch (error) {
+    logger.crit('Failed to initialize authentication service', {
+      error: {
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      },
+    });
+    throw error;
+  }
+
+  const elapsed = Date.now() - start;
+  logger.info('Service initialized', { elapsed });
 }
 
-main().catch((error) => {
-  console.error('FATAL: Uncaught exception', error);
+main().catch((error: Error) => {
+  logger.crit('Fatal: Uncaught exception', {
+    error: {
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    },
+  });
   process.exit(1);
 });
 
