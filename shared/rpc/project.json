@@ -1,0 +1,19 @@
+{
+  "name": "rpc",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "shared/rpc/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/shared/rpc",
+        "main": "shared/rpc/src/index.ts",
+        "tsConfig": "shared/rpc/tsconfig.lib.json",
+        "assets": ["shared/rpc/*.md"]
+      }
+    }
+  }
+}
