@@ -39,7 +39,10 @@ export class RabbitMQClient extends EventEmitter {
   private config: RabbitMQConfig;
   private isConnecting = false;
   private retryCount = 0;
-  private rpcCallbacks = new Map<string, (msg: Record<string, unknown>) => void>();
+  private rpcCallbacks = new Map<
+    string,
+    (msg: Record<string, unknown>) => void
+  >();
   private rpcReplyQueue: string | null = null; // Храним имя очереди для RPC-ответов
 
   constructor(config: RabbitMQConfig) {
@@ -54,14 +57,14 @@ export class RabbitMQClient extends EventEmitter {
   public async init(): Promise<void> {
     logger.info('Initializing RabbitMQ client');
     await this.connect();
-    await this.setupRpcResponseQueue();
+    if (this.channel) await this.setupRpcResponseQueue();
     logger.info('RabbitMQ client initialized successfully');
   }
 
   private async connect(): Promise<void> {
     if (this.connection || this.isConnecting) return;
     this.isConnecting = true;
-    
+
     logger.info('Connecting to RabbitMQ...');
 
     try {
@@ -70,6 +73,8 @@ export class RabbitMQClient extends EventEmitter {
       this.connection.on('error', this.handleConnectionError.bind(this));
 
       this.channel = await this.connection.createChannel();
+      this.channel.on('error', this.handleConnectionError.bind(this));
+
       this.retryCount = 0;
       this.emit('connected');
       this.isConnecting = false;
@@ -100,7 +105,9 @@ export class RabbitMQClient extends EventEmitter {
           const parsed = JSON.parse(msg.content.toString());
           handler(parsed);
         } catch (err) {
-          logger.error('Failed to parse JSON response:', err, { correlationId });
+          logger.error('Failed to parse JSON response:', err, {
+            correlationId,
+          });
           handler({ error: 'Invalid JSON response' });
         }
         this.rpcCallbacks.delete(correlationId);
@@ -117,7 +124,11 @@ export class RabbitMQClient extends EventEmitter {
     }
 
     this.retryCount++;
-    logger.info('Reconnecting to RabbitMQ in', this.config.reconnectInterval, 'ms');
+    logger.info(
+      'Reconnecting to RabbitMQ in',
+      this.config.reconnectInterval,
+      'ms'
+    );
 
     await new Promise((resolve) =>
       setTimeout(resolve, this.config.reconnectInterval ?? 5000)
@@ -153,11 +164,11 @@ export class RabbitMQClient extends EventEmitter {
     }
 
     const { exchange, routingKey, headers, persistent = true } = options;
-    logger.debug('Publishing message', { 
-      exchange, 
+    logger.debug('Publishing message', {
+      exchange,
       routingKey,
       // Note: headers might contain sensitive data
-      headerKeys: headers ? Object.keys(headers) : undefined
+      headerKeys: headers ? Object.keys(headers) : undefined,
     });
 
     const buffer = Buffer.from(JSON.stringify(message));
@@ -193,11 +204,11 @@ export class RabbitMQClient extends EventEmitter {
       prefetch = 10,
     } = options;
 
-    logger.info('Setting up subscription', { 
-      exchange, 
-      queue, 
-      routingKey, 
-      exchangeType 
+    logger.info('Setting up subscription', {
+      exchange,
+      queue,
+      routingKey,
+      exchangeType,
     });
 
     await this.channel.assertExchange(exchange, exchangeType, { durable });
@@ -210,24 +221,24 @@ export class RabbitMQClient extends EventEmitter {
     this.channel.consume(queue, async (message) => {
       if (!message) return;
 
-      logger.debug('Received message', { 
-        queue, 
-        messageId: message.properties.messageId 
+      logger.debug('Received message', {
+        queue,
+        messageId: message.properties.messageId,
       });
 
       try {
         const content = JSON.parse(message.content.toString()) as T;
         await handler(content);
         this.channel?.ack(message);
-        logger.debug('Message processed successfully', { 
-          queue, 
-          messageId: message.properties.messageId 
+        logger.debug('Message processed successfully', {
+          queue,
+          messageId: message.properties.messageId,
         });
       } catch (error) {
         logger.error('Error processing message:', error, {
           queue,
           exchange: options.exchange,
-          routingKey: options.routingKey
+          routingKey: options.routingKey,
         });
         this.channel?.nack(message, false, true);
         this.emit('error', error);
@@ -248,10 +259,10 @@ export class RabbitMQClient extends EventEmitter {
     }
 
     const correlationId = uuidv4();
-    logger.debug('Sending RPC request', { 
-      queue, 
+    logger.debug('Sending RPC request', {
+      queue,
       correlationId,
-      timeout: options.timeout || 5000
+      timeout: options.timeout || 5000,
     });
     const timeout = options.timeout || 5000;
 
@@ -300,9 +311,9 @@ export class RabbitMQClient extends EventEmitter {
       if (!msg) return;
 
       const correlationId = msg.properties.correlationId;
-      logger.debug('RPC worker received request', { 
-        queueName, 
-        correlationId 
+      logger.debug('RPC worker received request', {
+        queueName,
+        correlationId,
       });
 
       try {
@@ -317,12 +328,14 @@ export class RabbitMQClient extends EventEmitter {
           );
         }
         this.channel?.ack(msg);
-        logger.debug('RPC worker processed request', { 
-          queueName, 
-          correlationId 
+        logger.debug('RPC worker processed request', {
+          queueName,
+          correlationId,
         });
       } catch (error) {
-        logger.error('RPC worker error processing message:', error, { queueName });
+        logger.error('RPC worker error processing message:', error, {
+          queueName,
+        });
         this.channel?.nack(msg);
       }
     });
