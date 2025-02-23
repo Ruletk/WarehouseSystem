@@ -25,24 +25,29 @@ class AuthService {
     }
   };
 
-  // Вход пользователя
   async login(email: string, password: string): Promise<any> {
     try {
-      const response = await axios.post(`${API_URL}/login`, { email, password });
+      const response = await axios.post(
+        `${API_URL}/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+  
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (error.response?.data) {
+        throw new Error(error.response.data.message || 'Invalid email or password');
       }
       throw new Error('Login failed');
     }
   }
+  
 
   // Выход пользователя
   async logout(): Promise<any> {
     try {
       const response = await axios.get(`${API_URL}/logout`, {
-        withCredentials: true, // Для обработки cookies
+        withCredentials: true,
       });
       return response.data;
     } catch (error: any) {
