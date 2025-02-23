@@ -62,15 +62,62 @@ describe('RabbitMQClient Unit Tests', () => {
       expect(mockConnection.createChannel).toHaveBeenCalled();
       expect(client['rpcReplyQueue']).toBe('reply-queue');
     });
+
+    it('should prevent multiple simultaneous initializations', async () => {
+      client['isConnecting'] = true;
+      await expect(client.init()).rejects.toThrow('Channel not available');
+      expect(amqp.connect).not.toHaveBeenCalled();
+    });
+
+    it('should handle channel creation failure', async () => {
+      (mockConnection.createChannel as jest.Mock).mockRejectedValueOnce(
+        new Error('Channel error')
+      );
+
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      await expect(client.init()).rejects.toThrow('Channel not available');
+
+      expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+      expect(client['isConnecting']).toBe(false);
+    });
   });
 
   describe('Connection Error Handling', () => {
+    it('should emit error on connection failure', async () => {
+      (amqp.connect as jest.Mock).mockRejectedValueOnce(
+        new Error('Connection error')
+      );
+
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      await expect(client.init()).rejects.toThrow('Channel not available');
+
+      expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+    });
+
     it('should handle connection close events', async () => {
       await client.init();
       connectionEmitter.emit('close');
 
       expect(client['connection']).toBeNull();
       expect(client['channel']).toBeNull();
+    });
+
+    it('should handle channel errors', async () => {
+      channelEmitter.on('error', () => {
+        /* noop */
+      });
+      channelEmitter.emit('error', new Error('Channel error'));
+
+      await client.init();
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      await new Promise((resolve) => process.nextTick(resolve));
+      expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 
@@ -86,9 +133,49 @@ describe('RabbitMQClient Unit Tests', () => {
 
       expect(amqp.connect).toHaveBeenCalledTimes(2);
     });
+
+    it('should respect max retries', async () => {
+      (amqp.connect as jest.Mock).mockRejectedValue(
+        new Error('Connection error')
+      );
+
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      await client.init();
+
+      for (let i = 0; i < 3; i++) {
+        jest.advanceTimersByTime(100);
+        await Promise.resolve();
+      }
+
+      // Initial attempt + 3 retries
+      expect(amqp.connect).toHaveBeenCalledTimes(4);
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Max reconnect attempts reached' })
+      );
+    });
+
+    it('should reset retry count on successful connection', async () => {
+      (amqp.connect as jest.Mock)
+        .mockRejectedValueOnce(new Error('Connection error'))
+        .mockResolvedValueOnce(mockConnection);
+
+      await client.init();
+      expect(client['retryCount']).toBe(0);
+    });
   });
 
   describe('RPC Timeout Handling', () => {
+    it('should reject RPC requests after timeout', async () => {
+      await client.init();
+
+      const request = client.rpcRequest('test-queue', {}, { timeout: 100 });
+      jest.advanceTimersByTime(101);
+
+      await expect(request).rejects.toThrow('RPC request timed out');
+    });
+
     it('should clean up callbacks after timeout', async () => {
       await client.init();
 
@@ -99,6 +186,22 @@ describe('RabbitMQClient Unit Tests', () => {
         await request;
       } catch {} // eslint-disable-line
       expect(client['rpcCallbacks'].size).toBe(0);
+    });
+
+    it('should handle concurrent RPC requests', async () => {
+      await client.init();
+
+      const requests = Promise.all([
+        client.rpcRequest('test-queue', {}, { timeout: 100 }),
+        client.rpcRequest('test-queue', {}, { timeout: 200 }),
+      ]);
+
+      jest.advanceTimersByTime(201);
+
+      await expect(requests).rejects.toEqual([
+        expect.any(Error),
+        expect.any(Error),
+      ]);
     });
   });
 
@@ -137,6 +240,21 @@ describe('RabbitMQClient Unit Tests', () => {
   });
 
   describe('Edge Cases', () => {
+    it('should handle JSON parsing errors', async () => {
+      await client.init();
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      // Simulate invalid JSON message
+      (mockChannel.consume as jest.Mock).mock.calls[0][1]({
+        content: Buffer.from('invalid-json'),
+        properties: { correlationId: '123' },
+      });
+
+      await new Promise(process.nextTick);
+      expect(errorSpy).toHaveBeenCalledWith(expect.any(Error));
+    });
+
     it('should handle double close calls', async () => {
       await client.init();
       await client.close();
@@ -148,6 +266,18 @@ describe('RabbitMQClient Unit Tests', () => {
       await expect(
         client.publish({}, { exchange: 'test', routingKey: 'test' })
       ).rejects.toThrow('Channel not available');
+    });
+
+    it('should handle unexpected message types', async () => {
+      await client.init();
+      const errorSpy = jest.fn();
+      client.on('error', errorSpy);
+
+      // Simulate null message
+      (mockChannel.consume as jest.Mock).mock.calls[0][1](null);
+
+      await new Promise(process.nextTick);
+      expect(errorSpy).not.toHaveBeenCalled();
     });
   });
 });
