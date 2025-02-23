@@ -1,0 +1,17 @@
+{
+  "name": "@warehouse/rpc",
+  "version": "0.0.1",
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "@warehouse/logging": "^0.0.1",
+    "amqplib": "^0.10.5",
+    "uuid": "^11.1.0"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "private": true,
+  "devDependencies": {
+    "@types/uuid": "^10.0.0"
+  }
+}
