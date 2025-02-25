@@ -14,6 +14,9 @@ describe('authorizationMiddleware', () => {
         req = {
             cookies: {},
             body: {},
+            headers: {
+                'x-access-token': 'thisisatoken',
+            },
         };
         res = {
             status: jest.fn().mockReturnThis(),
@@ -29,6 +32,7 @@ describe('authorizationMiddleware', () => {
     });
 
     it('should return 401 if no token is provided', async () => {
+        req.headers = {};
         const middleware = authorizationMiddleware('requiredPermission');
         await middleware(req as Request, res as Response, next);
 
@@ -56,7 +60,6 @@ describe('authorizationMiddleware', () => {
     });
 
     it('should return 403 if user does not have required permission', async () => {
-        req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
             sub: '3',
             roles: ['user'],
@@ -77,10 +80,10 @@ describe('authorizationMiddleware', () => {
     });
 
     it('should call next if user has required permission', async () => {
-        req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
-            sub: '3',
-            roles: ['admin'],
+          id: 3,
+          email: 'test@gmail.com',
+          roles: ['admin'],
         });
 
         const middleware = authorizationMiddleware('admin');
@@ -88,15 +91,16 @@ describe('authorizationMiddleware', () => {
 
         expect(next).toHaveBeenCalled();
         expect(req.authPayload).toEqual({
-            userId: 3,
-            roles: ['admin'],
+          userId: 3,
+          userEmail: 'test@gmail.com',
+          roles: ['admin'],
         });
     });
 
     it('should call next if no required role is specified', async () => {
-        req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
-            sub: '4',
+            id: 4,
+            email: 'test@gmail.com',
             roles: ['user'],
         });
 
@@ -106,6 +110,7 @@ describe('authorizationMiddleware', () => {
         expect(next).toHaveBeenCalled();
         expect(req.authPayload).toEqual({
             userId: 4,
+            userEmail: 'test@gmail.com',
             roles: ['user'],
         });
     });
