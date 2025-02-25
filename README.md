@@ -1,82 +1,236 @@
-# Warehouse
+# Warehouse Management System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Readme version 1.0.0
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Table of contents
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+1. [Description](#description)
+2. [Before you start](#before-you-start)
+3. [Setup](#setup)
+4. [Development commands](#development-commands)
+5. [Git workflow](#git-workflow)
+6. [Useful links](#useful-links)
+7. [License](#license)
 
-## Finish your CI setup
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/vCVwK2jIkJ)
+## Description
+Our warehouse and inventory management system is designed to manage a company's warehouse operations, including accounting for users, warehouses and goods.
+
+___
+
+### Main functionality
+
+1. **Users**
+    - Manage user accounts with different access levels.
+    - Ability to add, edit and delete users.
+
+2. **Warehouses**
+    - Add and record company warehouses.
+    - Manage data for each warehouse (name, location, description, etc.).
+
+3. **Products (Stock)**
+    - Add products to the warehouse.
+    - Record the quantity, categories and other characteristics of products.
+    - Manage the movement of products between warehouses
+
+___
+
+### Technical details
+
+The service is designed to be deployed on the company's server. The architecture is built on a microservice model for easy scalability and support for individual parts of the system.
+
+This project lays the foundation for more complex warehouse management systems, starting with basic functions and developing them according to requirements.
+
+## Before you start
+
+Properly read this section before you start the development.
+
+For development environment, you need to have [Node.js](https://nodejs.org/en/download/) installed. Use only 18.x version of Node.js!
+
+If you using VSCode, you must install [EditorConfig for VS Code](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) for consistent code formatting.
+
+I recommend to use [Nx Console](https://marketplace.visualstudio.com/items?itemName=nrwl.angular-console) in VSCode for faster nx command execution.
+
+For environment setup, you need to have [Docker](https://www.docker.com/products/docker-desktop) installed.
 
 
-## Run tasks
+## Setup
 
-To run the dev server for your app, use:
+Firstly, clone the repository:
 
 ```sh
-npx nx serve Warehouse
+git clone https://github.com/Ruletk/WarehouseSystem.git
 ```
 
-To create a production bundle:
+Then, install the dependencies:
 
 ```sh
-npx nx build Warehouse
+npm install
 ```
 
-To see all available targets to run for a project, run:
+Initialize the environment:
 
 ```sh
-npx nx show project Warehouse
+docker-compose up
 ```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/node:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/node:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+It can take some time to download the images and start the services, but only for the first time.
 
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Development commands
 
-## Install Nx Console
+To list the available targets/projects, use: `npx nx projects`
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+To show application graph, use: `npx nx graph`
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+To run the dev server of the application, use: `npx nx serve *service-name*`
+
+To build the application, use: `npx nx build *service-name*`
+
+To generate a new application, use: `npx nx g @nx/express:app apps/*app-name*`
+
+To generate a new library, use: `npx nx g @nx/node:lib *lib-name*`
+
+To start the environment, use: `docker-compose up`. To stop the environment, use: `docker-compose down`. I don't recommend to use `-d` flag for `docker-compose up` command, because you will not see the logs of the services.
+
+
+## Git workflow
+
+To ensure smooth collaboration and maintain a clean and organized repository, the following Git workflow is implemented in this project:
+
+___
+
+### **Branching Strategy**
+1. **Microservice branches**
+
+    Each microservice has its own dedicated branch named after the service.
+
+    Naming convention: `microservice/<service-name>`
+
+    Example:
+    - `microservice/auth`
+    - `microservice/warehouse`
+    - `microservice/order`
+    - `microservice/notification`
+
+2. **Feature branches**
+
+    New features or changes to a specific microservice are developed in separate branches based on the microservice branch.
+
+    Naming convention: `<type>/<service-name>/<change-description>`
+
+    There are types of branches:
+    - `feature`: For new features.
+    - `bugfix`: For bug fixes.
+    - `refactor`: For code refactoring.
+    - `documentation`: For documentation changes.
+    - `library`: For adding or modifying shared libraries.
+    - `other`: For other changes that do not fit into any of the above categories.
+
+
+    Example:
+    - `feature/auth/add-login-endpoint`
+    - `feature/warehouse/fix-inventory-bug`
+    - `refactor/order/improve-request-bottleneck`
+
+    Branches that not related to a specific microservice should ignore the `<service-name>` part.
+
+    Example:
+    - `feature/add-logging`
+    - `bugfix/fix-logging-bug`
+
+
+3. **Merging to the main branch**
+    
+    For development we have `development` branch. When the feature is ready, the feature branch is merged into the microservice branch. When all the features are ready, the microservice branch is merged into the `development` branch. When the development branch is stable, it is merged into the `master` branch.
+
+    Master branch is the production branch. It should always contain the latest stable version of the application. Only pull requests are allowed to merge into the master branch.
+
+    In development branch you can commit directly, but you need to notify the team about the changes.
+
+4. **Git fetch and pull**
+
+    Before starting work on a new feature, always fetch the latest changes from the remote repository and pull them into your local repository.
+
+    ```sh
+    git fetch
+    git pull
+    ```
+
+    Better if you use `git fetch --all` and `git pull --all` to fetch and pull all branches.
+
+5. **Commit messages guidelines**
+    To maintain consistency and clarity in the commit history, follow this naming convention for commit messages:
+
+    1. **feat**: For new features.
+
+        New feature is a change that adds functionality to the application. Funtionality is a code that do something for the user and have logic in it.
+
+        Example: `feat: add login endpoint`
+
+    2. **fix**: For bug fixes.
+
+        A bug fix is a change that makes a previously broken code work as intended. Typo fixes, error handling, and logic fixes are considered bug fixes.
+
+        Critical bug fixes should be marked with `BREAKING CHANGE` in the commit message at the end.
+
+        Example: `fix: resolve inventory bug`
+
+    3. **docs**: For documentation changes.
+
+        It includes changes to the README, comments, and documentation files.
+
+        Example: `docs: update README.md`
+
+    4. **style**: For code style changes.
+
+        It includes formatting, missing semicolons, running linter, change linting rules, etc.
+
+        Example: `style: format code`
+
+    5. **refactor**: For code refactoring.
+
+        It includes changes that neither fixes a bug nor adds a feature. Refactoring improves the code quality, readability, and maintainability.
+
+        Example: `refactor: improve inventory service`
+
+    6. **test**: For adding or modifying tests.
+
+        It includes changes to the test files, adding new tests, and modifying existing tests.
+
+        If it is a commit that fixes the test, it should be marked as `test+fix`, combined with `fix`.
+
+        Example: `test: add unit tests for inventory service`
+
+    7. **chore**: For changes to the build process or auxiliary tools.
+
+        It includes changes to the build process, CI/CD pipeline, and other auxiliary tools.
+
+        Updating dependencies should be marked as `chore`.
+
+        Example: `chore: update dependencies`
+
+    8. **other**: For other changes that do not fit into any of the above categories.
+
+        Example: `other: update .gitignore`
+
+    9. **BREAKING CHANGE**: For changes that break the existing code.
+
+        It includes changes that require the user to modify their code to make it work with the latest version.
+
+        Example: `feat: add login endpoint BREAKING CHANGE: change response format`
+
+    All prefixes should be in **lowercase** and **followed by a colon and a space**. The commit message should start with a capital letter and be written in the present or past tense. Message should be clear and concise and end with a **period** (**.**, dot).
+
+    Prefixes can be combined if the commit falls into multiple categories. For example, a commit that adds a new feature and fixes a bug can be prefixed with `feat+fix`.
+
+    But it is better to split the commit into two separate commits, one for the feature and one for the bug fix.
 
 ## Useful links
 
-Learn more:
+### [Nx Documentation](https://nx.dev)
+### [Express Documentation](https://expressjs.com/)
+### [TypeORM Documentation](https://typeorm.io/)
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/node?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## License
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is licensed under the MIT License, which allows you to use, modify, and distribute the software freely as long as proper attribution is given. See the [LICENSE](LICENSE) file for details.

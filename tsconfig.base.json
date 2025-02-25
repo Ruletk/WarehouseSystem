@@ -14,7 +14,12 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@warehouse/authorization": ["shared/authorization/src/index.ts"],
+      "@warehouse/logging": ["shared/logging/src/index.ts"],
+      "@warehouse/rpc": ["shared/rpc/src/index.ts"],
+      "@warehouse/validation": ["shared/validation/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
