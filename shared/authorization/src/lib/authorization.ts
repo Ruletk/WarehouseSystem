@@ -23,8 +23,12 @@ export function authorizationMiddleware(requiredRole: string): RequestHandler {
     res: Response,
     next: NextFunction
   ): Promise<void> => {
-    logger.debug('Headers: ', req.headers, req.headers['x-access-token']);
-    const token = req.headers['x-access-token'] as string;
+    const token: string | undefined = req.headers ? req.headers['x-access-token'] as string : undefined;
+    logger.debug('Authorization middleware', {
+      token,
+      requiredRole,
+    });
+
     if (!token) {
       logger.warn('No token provided');
       res.status(401).json(
