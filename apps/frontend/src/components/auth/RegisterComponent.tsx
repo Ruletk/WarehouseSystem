@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import commonStyles from './commonStyles.module.css';
+import { ApiResponse } from '@warehouse/validation';
 
 interface RegisterComponentProps {
-  onRegister: (data: { email: string; password: string }) => Promise<void>;
+  onRegister: (data: { email: string; password: string }) => Promise<ApiResponse>;
 }
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => {
@@ -22,7 +23,8 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({ onRegister }) => 
     setSuccessMessage(null);
 
     try {
-      await onRegister({ email, password });
+      const data = await onRegister({ email, password });
+      if (data.code === 200)
       setSuccessMessage('Successfully registered. Check your email for verification.');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
