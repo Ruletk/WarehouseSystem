@@ -50,7 +50,7 @@ export class StockRouter {
       const items = await this.itemService.getItemsByWarehouse(warehouse_id);
       logger.info('Retrieved warehouse stocks', {
         warehouse_id,
-        itemCount: items.length
+        items: items
       });
       res.status(200).send(items);
     } catch (error) {
