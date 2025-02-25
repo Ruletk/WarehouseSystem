@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import apiClient from "../api/client";
 import { endpoints } from "../api/endpoints";
 
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(true);
         try {
             // Login user
-            const response = await apiClient.post(endpoints.auth.login, credentials);
+            await apiClient.post(endpoints.auth.login, credentials);
             await refreshUser();
             setError(null);
         } catch (err: any) {
@@ -71,6 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+      refreshUser();
+    }, []);
 
     return (
         <AuthContext.Provider value={{ user, isLoading, error, login, logout, refreshUser, isAuthenticated }}>

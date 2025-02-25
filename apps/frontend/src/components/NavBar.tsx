@@ -24,7 +24,7 @@ const NavBar = () => {
     >
       <div style={{ display: 'flex', gap: '1rem' }}>
         <Link to="/">Home</Link>
-        {isAuthenticated && <Link to="/warehouses">Warehouses</Link>}
+        {isAuthenticated && <Link to="/warehouse">Warehouses</Link>}
       </div>
 
       <div style={{ display: 'flex', gap: '1rem' }}>
