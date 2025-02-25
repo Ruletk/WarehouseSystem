@@ -6,8 +6,8 @@ const logger = getLogger('jwtService');
 const ACCESS_EXPIRES_IN = '15m';
 
 export class JwtService {
-  private readonly secret: jwt.Secret = 'TOP-SECRET-TOKEN-KEY';
-
+  private secret;
+  
   constructor() {
     logger.info('Creating JwtService instance');
     this.secret = process.env.JWT_SECRET || this.secret;

@@ -108,6 +108,7 @@ services:
       DB_USER: postgres
       DB_PASS: postgres
       DB_NAME: db
+      JWT_SECRET: verysecret
     volumes:
       - ./logs/auth:/app/logs
     networks:

@@ -78,6 +78,7 @@ export class AuthAPI {
       res.cookie('auth', resp.data.token, {
         maxAge: 31536000000,
         httpOnly: true,
+        sameSite: 'strict'
       });
       logger.info('Login successful', { userId: resp.data.userId });
     } else {
@@ -152,9 +153,14 @@ export class AuthAPI {
   }
 
   private async userHandler(req: Request, res: Response) {
-    console.log('User handler called');
+    logger.debug('User data request', {
+      ip: req.ip,
+      authPayload: req.authPayload
+    });
     const resp = await this.authService.getUserData(req.authPayload.userId);
-
+    logger.info('User data retrieved', {
+      response: resp
+    });
     if (resp && 'code' in resp)
       res.status(resp.code).json(resp);
     else
