@@ -4,7 +4,7 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 
 
 interface AuthPayload {
-  userId: string;
+  userId: number;
   roles: string[];
 }
 
@@ -42,7 +42,7 @@ export function authorizationMiddleware(
     }
 
     const payload = jwt.verify(token, secret) as jwt.JwtPayload;
-    const userId = payload.sub as string; // Always a string
+    const userId = parseInt(payload['sub'] as string, 10);
     const roles = payload['roles'] as string[]; // Always an array or empty array
 
     req.authPayload = { userId, roles };

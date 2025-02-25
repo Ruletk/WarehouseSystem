@@ -4,9 +4,10 @@ import {
   PasswordChange,
   RequestPasswordChange,
 } from '../dto/request';
-import { validateRequest } from '@warehouse/validation';
+import { ApiResponse, validateRequest } from '@warehouse/validation';
 import { AuthService } from '../services/authService';
 import { getLogger } from '@warehouse/logging';
+import { authorizationMiddleware } from '@warehouse/authorization';
 
 const logger = getLogger('authAPI');
 
@@ -61,6 +62,8 @@ export class AuthAPI {
     logger.info('Registering authenticated auth routes', {
       routerName: router.name
     });
+
+    router.get('/user', authorizationMiddleware(''), this.userHandler.bind(this));
   }
 
   private async loginHandler(req: Request, res: Response) {
@@ -146,5 +149,15 @@ export class AuthAPI {
     const resp = await this.authService.activateAccount(token);
 
     res.status(resp.code).json(resp);
+  }
+
+  private async userHandler(req: Request, res: Response) {
+    console.log('User handler called');
+    const resp = await this.authService.getUserData(req.authPayload.userId);
+
+    if (resp && 'code' in resp)
+      res.status(resp.code).json(resp);
+    else
+      res.status(200).json(resp);
   }
 }

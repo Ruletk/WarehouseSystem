@@ -11,6 +11,7 @@ import { JwtService } from './jwtService';
 import { TokenService } from './tokenService';
 import { EmailService } from './emailService';
 import { getLogger } from '@warehouse/logging';
+import { UserResponse } from '../dto/response';
 
 const logger = getLogger('authService');
 const saltRounds = 10;
@@ -265,6 +266,22 @@ export class AuthService {
       type: 'success',
       message: 'Password changed',
     });
+  }
+
+  public async getUserData(userID: number): Promise<UserResponse | ApiResponse> {
+    logger.info('Get user data service called');
+    const user = await this.authRepository.findById(userID);
+    if (!user) {
+      logger.error('User not found', userID);
+      return ApiResponse.from({
+        code: 404,
+        type: 'error',
+        message: 'User not found',
+      });
+    }
+    
+    logger.debug('Returning user data', { userId: user.id });
+    return UserResponse.from({ email: user.email });
   }
 
   private async hashPassword(password: string): Promise<string> {

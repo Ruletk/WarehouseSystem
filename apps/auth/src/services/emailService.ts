@@ -8,7 +8,7 @@ export class EmailService {
     subject: string,
     message: string
   ): Promise<void> {
-    logger.debug('Mock: Sending email', {
+    logger.debug(`Mock: Sending email: ${message}`, {
       to: email,
       subject
     });

@@ -58,7 +58,7 @@ describe('authorizationMiddleware', () => {
     it('should return 403 if user does not have required permission', async () => {
         req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
-            sub: 'userId',
+            sub: '3',
             roles: ['user'],
         });
 
@@ -79,7 +79,7 @@ describe('authorizationMiddleware', () => {
     it('should call next if user has required permission', async () => {
         req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
-            sub: 'userId',
+            sub: '3',
             roles: ['admin'],
         });
 
@@ -88,7 +88,7 @@ describe('authorizationMiddleware', () => {
 
         expect(next).toHaveBeenCalled();
         expect(req.authPayload).toEqual({
-            userId: 'userId',
+            userId: 3,
             roles: ['admin'],
         });
     });
@@ -96,7 +96,7 @@ describe('authorizationMiddleware', () => {
     it('should call next if no required role is specified', async () => {
         req.cookies = { auth: 'token' };
         (jwt.verify as jest.Mock).mockReturnValue({
-            sub: 'userId',
+            sub: '4',
             roles: ['user'],
         });
 
@@ -105,7 +105,7 @@ describe('authorizationMiddleware', () => {
 
         expect(next).toHaveBeenCalled();
         expect(req.authPayload).toEqual({
-            userId: 'userId',
+            userId: 4,
             roles: ['user'],
         });
     });
